@@ -1,0 +1,12 @@
+{
+  "name": "iosp-welcome",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "format": "prettier --write \"public/**/*.{js,css,html,json}\"",
+    "format:check": "prettier --check \"public/**/*.{js,css,html,json}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6"
+  }
+}

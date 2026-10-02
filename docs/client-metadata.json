@@ -1,0 +1,12 @@
+{
+  "client_id": "https://atproto-science.github.io/iosp-welcome/client-metadata.json",
+  "client_name": "IOSP 2026",
+  "client_uri": "https://atproto-science.github.io/iosp-welcome/",
+  "redirect_uris": ["https://atproto-science.github.io/iosp-welcome/welcome.html"],
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "scope": "atproto repo:community.lexicon.calendar.rsvp?action=create repo:community.lexicon.calendar.rsvp?action=update",
+  "application_type": "web",
+  "dpop_bound_access_tokens": true,
+  "token_endpoint_auth_method": "none"
+}

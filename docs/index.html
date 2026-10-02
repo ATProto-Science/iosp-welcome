@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open web at IOSP 2026</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div class="brand">
+          <svg viewBox="0 0 32 32" aria-hidden="true">
+            <g transform="rotate(30 16 16)">
+              <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" />
+              <path d="M-1.8 0 1.8 0 0 3Z" transform="translate(25.97 11.35) rotate(-25)" fill="#1d2d8e" />
+            </g>
+          </svg>
+          <span>Institute of Open Science Practices</span>
+        </div>
+        <button type="button" class="header-logout" id="sign-out" hidden>Log out</button>
+      </header>
+
+      <section class="screen" id="choose" aria-labelledby="choose-title">
+        <div class="paper entry-paper">
+          <div class="folio-meta">
+            <span>IOSP 2026 <span class="meta-divider">·</span> Edition 03</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+          </div>
+          <div class="entry-layout">
+            <div class="entry-intro">
+              <svg class="hero-mark" viewBox="0 0 32 32" aria-hidden="true">
+                <g transform="rotate(30 16 16)">
+                  <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <path d="M-1.8 0 1.8 0 0 3Z" transform="translate(25.97 11.35) rotate(-25)" fill="#1d2d8e" />
+                </g>
+              </svg>
+              <h1 id="choose-title" tabindex="-1">IOSP 2026</h1>
+              <p class="entry-lead">Your way into <em>the open web.</em></p>
+            </div>
+            <div class="entry-actions">
+              <p class="eyebrow">Get started</p>
+              <p class="action-intro">Use your account for the workshops and conference feed.</p>
+              <div class="choices" aria-label="Choose an account path">
+                <button class="choice" type="button" data-path="existing">
+                  <span class="number">01</span
+                  ><span class="choice-body"
+                    ><span class="choice-title">Sign in with your account</span
+                    ><span class="redacted" aria-hidden="true">Use the Atmosphere account you already have.</span></span
+                  ><span class="arrow" aria-hidden="true">→</span>
+                </button>
+                <button class="choice" type="button" data-path="temporary">
+                  <span class="number">02</span
+                  ><span class="choice-body"
+                    ><span class="choice-title">Get a temporary account</span
+                    ><span class="redacted" aria-hidden="true">For workshops now; migration can happen anytime.</span></span
+                  ><span class="arrow" aria-hidden="true">→</span>
+                </button>
+              </div>
+            </div>
+          </div>
+          <p id="disclosure" class="disclosure" hidden>Your RSVP is public. Signing in adds your account to the IOSP participant list.</p>
+        </div>
+      </section>
+
+      <section class="screen" id="identity" aria-labelledby="identity-title" hidden>
+        <button class="back" type="button" data-go="choose">← Account options</button>
+        <div class="paper form-paper">
+          <div class="folio-meta">
+            <span>IOSP 2026 <span class="meta-divider">·</span> Account</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+          </div>
+          <div class="form-layout">
+            <div class="form-intro">
+              <p class="eyebrow">Open web access</p>
+              <h1 id="identity-title" tabindex="-1">Sign in to IOSP</h1>
+              <p id="identity-explanation" class="supporting"></p>
+            </div>
+            <form class="identity-step" id="account-form">
+              <label for="handle" id="handle-label">Your handle</label>
+              <div class="input-row">
+                <input id="handle" type="text" placeholder="you.bsky.social" spellcheck="false" autocomplete="username" required /><span
+                  class="input-suffix"
+                  id="handle-suffix"
+                  hidden
+                ></span>
+              </div>
+              <div id="signup-fields" hidden>
+                <label for="password">Password</label><input id="password" type="password" minlength="8" autocomplete="new-password" />
+                <p class="field-note">Keep this password safe; account recovery may not be available.</p>
+              </div>
+              <button class="primary" type="submit" id="continue">
+                <span id="continue-label">Continue to sign in</span><span aria-hidden="true">→</span>
+              </button>
+              <p id="form-status" class="form-status" role="alert" hidden></p>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen" id="joined" aria-labelledby="joined-title" hidden>
+        <div class="paper joined-paper">
+          <div class="folio-meta">
+            <span>IOSP 2026 <span class="meta-divider">·</span> Your account</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+          </div>
+          <div class="joined-intro">
+            <div>
+              <p class="eyebrow">Welcome</p>
+              <h1 id="joined-title" tabindex="-1">You're here.</h1>
+              <p class="supporting">Signed in as <strong id="joined-handle"></strong></p>
+            </div>
+            <svg class="joined-mark" viewBox="0 0 32 32" aria-hidden="true">
+              <g transform="rotate(30 16 16)">
+                <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                <path d="M-1.8 0 1.8 0 0 3Z" transform="translate(25.97 11.35) rotate(-25)" fill="#1d2d8e" />
+              </g>
+            </svg>
+          </div>
+          <div class="account-line">
+            <p id="rsvp-status" class="rsvp-status" role="status" hidden></p>
+            <button type="button" id="retry-rsvp" class="text-action" hidden>Retry RSVP ↻</button
+            ><button type="button" class="migration-offer" id="migration-link" hidden>
+              Move this account to Aster <span aria-hidden="true">↗</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="joined-columns">
+          <section class="workshops paper" aria-labelledby="workshops-title">
+            <h2 id="workshops-title" class="section-heading">Workshops</h2>
+            <p class="workshop-intro redacted" aria-hidden="true">Find your way to the workshops and meet the people building the open web.</p>
+            <div class="workshop-row" aria-hidden="true">
+              <span class="number">01</span
+              ><span class="workshop-copy"
+                ><span class="redacted workshop-title">Build an open science network together</span
+                ><span class="redacted workshop-detail">Oct 12 · In person at the conference</span
+                ><span class="redacted workshop-action">Explore workshop</span></span
+              >
+            </div>
+            <div class="workshop-row" aria-hidden="true">
+              <span class="number">02</span
+              ><span class="workshop-copy"
+                ><span class="redacted workshop-title">Explore the tools of the Atmosphere</span
+                ><span class="redacted workshop-detail">Oct 13 · Learn by making something</span
+                ><span class="redacted workshop-action">Explore workshop</span></span
+              >
+            </div>
+            <div class="workshop-row" aria-hidden="true">
+              <span class="number">03</span
+              ><span class="workshop-copy"
+                ><span class="redacted workshop-title">Meet the community around research</span
+                ><span class="redacted workshop-detail">Oct 14 · Find the next thing to do</span
+                ><span class="redacted workshop-action">Explore workshop</span></span
+              >
+            </div>
+          </section>
+          <section class="feed-preview paper" aria-labelledby="feed-title">
+            <div class="feed-heading">
+              <h2 id="feed-title" class="section-heading">Conference feed</h2>
+              <button type="button" class="text-action" id="open-feed">Open in… ↗</button>
+            </div>
+            <iframe
+              id="conference-feed"
+              title="IOSP conference feed on Graze"
+              data-src="https://graze.social/feeds/embed/36300?frameless=1&amp;bgColor=%23ffffff&amp;primaryTextColor=%2314161d&amp;secondaryTextColor=%2350576a&amp;fontFamily=Geist"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+            ></iframe>
+          </section>
+        </div>
+
+        <section class="participants paper" aria-labelledby="participants-title">
+          <h2 id="participants-title" class="section-heading">Participants</h2>
+          <p id="participant-status" class="participant-status" role="status">Loading participants…</p>
+          <div id="participant-list" class="participant-list"></div>
+          <button id="view-participants" class="text-action" type="button" aria-controls="participant-list" aria-expanded="false" hidden>
+            View full list ↓
+          </button>
+        </section>
+      </section>
+
+      <section class="screen" id="migration" aria-labelledby="migration-title" hidden>
+        <button class="back" type="button" data-go="joined">← Back to IOSP</button>
+        <div class="paper form-paper">
+          <div class="folio-meta">
+            <span>IOSP 2026 <span class="meta-divider">·</span> Your account</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+          </div>
+          <div class="form-intro">
+            <p class="eyebrow">After you join</p>
+            <h1 id="migration-title" tabindex="-1">Move to Aster later</h1>
+            <p class="supporting">Moving your account is optional. You can do it at any time, including at the atproto.science workshop.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog class="app-picker" id="app-picker" aria-labelledby="app-picker-title">
+      <div class="picker-heading">
+        <h2 id="app-picker-title">Open feed in…</h2>
+        <button type="button" class="picker-close" id="close-picker" aria-label="Close app picker">×</button>
+      </div>
+      <p class="picker-note">Some apps may ask you to sign in.</p>
+      <h3>Bluesky clients</h3>
+      <div class="app-options">
+        <a href="https://bsky.app/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Bluesky <span>Open ↗</span></a
+        >
+        <a href="https://anisota.net/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Anisota <span>Open ↗</span></a
+        >
+        <a href="https://bluepy.social/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Bluepy <span>Open ↗</span></a
+        >
+        <a href="https://impro.social/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Impro <span>Open ↗</span></a
+        >
+      </div>
+      <h3>Bluesky forks</h3>
+      <div class="app-options">
+        <a href="https://blacksky.community/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Blacksky <span>Open ↗</span></a
+        >
+        <a href="https://witchsky.app/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Witchsky <span>Open ↗</span></a
+        >
+        <a href="https://mu.social/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Mu <span>Open ↗</span></a
+        >
+        <a href="https://deer.social/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Deer <span>Open ↗</span></a
+        >
+        <a href="https://northsky.app/profile/did:plc:nncebyouba4ex3775syiyvjy/feed/iosp-conference" target="_blank" rel="noopener noreferrer"
+          >Northsky <span>Open ↗</span></a
+        >
+      </div>
+    </dialog>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

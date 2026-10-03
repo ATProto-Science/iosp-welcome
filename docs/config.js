@@ -3,7 +3,7 @@ export const config = {
   oauthClientId: "https://atproto-science.github.io/iosp-welcome/client-metadata.json",
   temporaryPds: "https://memo.dog",
   temporaryHandleSuffix: ".memo.dog",
-  eventUri: "",
-  eventCid: "",
-  rsvpRkey: "3mwrmajov6c22",
+  eventUri: "at://did:plc:nncebyouba4ex3775syiyvjy/community.lexicon.calendar.event/3mwe2wybqqcrj",
+  eventCid: "bafyreiaumzuiizrdhkl4brpqljsecrp5fvul76tijrj4oyexovxximwn2u",
+  rsvpRkey: "3mwe2wybqqcrj",
 };

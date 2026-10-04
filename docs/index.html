@@ -24,7 +24,7 @@
       <section class="screen" id="choose" aria-labelledby="choose-title">
         <div class="paper entry-paper">
           <div class="folio-meta">
-            <span>IOSP 2026 <span class="meta-divider">·</span> Edition 03</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+            <span>IOSP 2026 <span class="meta-divider">·</span> Edition 02</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
           </div>
           <div class="entry-layout">
             <div class="entry-intro">
@@ -39,7 +39,7 @@
             </div>
             <div class="entry-actions">
               <p class="eyebrow">Get started</p>
-              <p class="action-intro">Use your account for the workshops and conference feed.</p>
+              <p class="action-intro">You will use an Atmosphere account throughout the conference for various workshops.</p>
               <div class="choices" aria-label="Choose an account path">
                 <button class="choice" type="button" data-path="existing">
                   <span class="number">01</span
@@ -58,7 +58,6 @@
               </div>
             </div>
           </div>
-          <p id="disclosure" class="disclosure" hidden>Your RSVP is public. Signing in adds your account to the IOSP participant list.</p>
         </div>
       </section>
 
@@ -75,13 +74,17 @@
               <p id="identity-explanation" class="supporting"></p>
             </div>
             <form class="identity-step" id="account-form">
-              <label for="handle" id="handle-label">Your handle</label>
+              <label for="handle" id="handle-label" hidden>Choose a username</label>
               <div class="input-row">
-                <input id="handle" type="text" placeholder="you.bsky.social" spellcheck="false" autocomplete="username" required /><span
-                  class="input-suffix"
-                  id="handle-suffix"
-                  hidden
-                ></span>
+                <input
+                  id="handle"
+                  type="text"
+                  placeholder="username.bsky.social"
+                  aria-label="Your handle"
+                  spellcheck="false"
+                  autocomplete="username"
+                  required
+                /><span class="input-suffix" id="handle-suffix" hidden></span>
               </div>
               <div id="signup-fields" hidden>
                 <label for="password">Password</label><input id="password" type="password" minlength="8" autocomplete="new-password" />
@@ -98,29 +101,84 @@
 
       <section class="screen" id="joined" aria-labelledby="joined-title" hidden>
         <div class="paper joined-paper">
-          <div class="folio-meta">
-            <span>IOSP 2026 <span class="meta-divider">·</span> Your account</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
-          </div>
-          <div class="joined-intro">
-            <div>
-              <p class="eyebrow">Welcome</p>
-              <h1 id="joined-title" tabindex="-1">You're here.</h1>
-              <p class="supporting">Signed in as <strong id="joined-handle"></strong></p>
+          <div class="panel-split">
+            <div class="attend-panel">
+              <div id="attending-prompt">
+                <p class="eyebrow">Attending</p>
+                <h1 id="joined-title" tabindex="-1" class="attend-title">IOSP 2026</h1>
+                <p class="attend-date">Oct 12–15, 2026 · Leiden</p>
+                <p class="attend-lead">Saves a public “going to IOSP” RSVP on your own account.</p>
+                <p class="attend-lead">Then we add you to the bluesky list powering the feed.</p>
+                <button type="button" class="primary-action is-white" id="rsvp-yes">I'll be there <span aria-hidden="true">→</span></button>
+                <p id="rsvp-status" class="rsvp-status is-on-dark" role="status" hidden></p>
+              </div>
+
+              <div id="attending-result" hidden>
+                <p class="eyebrow">Attending</p>
+                <h2 id="attending-done-heading" class="attend-title">You're on the list.</h2>
+                <p class="attend-date">IOSP 2026 · Oct 12–15, Leiden</p>
+                <p class="attend-lead">Your RSVP is public and lives in your account. If you move between account hosts, your data moves with you.</p>
+                <p class="attend-links">
+                  <a class="text-action is-on-dark" href="#participants-title" id="jump-to-list">See the participant list ↓</a>
+                  <button type="button" class="text-action is-on-dark" id="rsvp-undo">Remove my RSVP</button>
+                </p>
+                <p id="rsvp-result-status" class="rsvp-status is-on-dark" role="status" hidden></p>
+              </div>
             </div>
-            <svg class="joined-mark" viewBox="0 0 32 32" aria-hidden="true">
-              <g transform="rotate(30 16 16)">
-                <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                <path d="M-1.8 0 1.8 0 0 3Z" transform="translate(25.97 11.35) rotate(-25)" fill="#1d2d8e" />
-              </g>
-            </svg>
+
+            <div class="account-panel">
+              <p class="accent-label">Your Atmosphere Account</p>
+              <dl class="plain-facts">
+                <div class="plain-fact">
+                  <dt>Handle</dt>
+                  <dd id="joined-handle">…</dd>
+                </div>
+                <div class="plain-fact">
+                  <dt>DID</dt>
+                  <dd>
+                    <span class="did-value"><code id="did-code">…</code></span>
+                    <button type="button" class="icon-button" id="copy-did" aria-label="Copy DID" aria-describedby="copy-did-tip">
+                      <svg
+                        class="icon-copy"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <rect x="5.75" y="5.75" width="7.75" height="7.75" rx="1.5" />
+                        <path d="M10.25 3.25v-.5a1.5 1.5 0 0 0-1.5-1.5h-6a1.5 1.5 0 0 0-1.5 1.5v6a1.5 1.5 0 0 0 1.5 1.5h.5" />
+                      </svg>
+                      <svg
+                        class="icon-check"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.6"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                      </svg>
+                      <span class="tip" role="tooltip" id="copy-did-tip">Copy DID</span>
+                    </button>
+                  </dd>
+                </div>
+                <div class="plain-fact">
+                  <dt>Host</dt>
+                  <dd id="host-value">…</dd>
+                </div>
+              </dl>
+              <p class="host-note" id="host-note">
+                Your DID is permanent, so your account survives a new handle or new host. You can sign in with your DID or, more conveniently, your
+                handle.
+              </p>
+              <p class="panel-action"><button type="button" class="text-action" id="migration-link">Move my account to Aster ↗</button></p>
+            </div>
           </div>
-          <div class="account-line">
-            <p id="rsvp-status" class="rsvp-status" role="status" hidden></p>
-            <button type="button" id="retry-rsvp" class="text-action" hidden>Retry RSVP ↻</button
-            ><button type="button" class="migration-offer" id="migration-link" hidden>
-              Move this account to Aster <span aria-hidden="true">↗</span>
-            </button>
-          </div>
+          <p id="copy-status" class="sr-only" role="status" aria-live="polite"></p>
         </div>
 
         <div class="joined-columns">
@@ -160,7 +218,7 @@
             <iframe
               id="conference-feed"
               title="IOSP conference feed on Graze"
-              data-src="https://graze.social/feeds/embed/36300?frameless=1&amp;bgColor=%23ffffff&amp;primaryTextColor=%2314161d&amp;secondaryTextColor=%2350576a&amp;fontFamily=Geist"
+              data-src="https://graze.social/feeds/embed/36300?bgColor=%23ffffff&amp;primaryTextColor=%2314161d&amp;secondaryTextColor=%2350576a&amp;fontFamily=Geist&amp;brandBar=bottom&amp;composeText=%23IOSP26"
               loading="lazy"
               referrerpolicy="no-referrer"
             ></iframe>
@@ -168,12 +226,14 @@
         </div>
 
         <section class="participants paper" aria-labelledby="participants-title">
-          <h2 id="participants-title" class="section-heading">Participants</h2>
+          <div class="participants-heading">
+            <h2 id="participants-title" class="section-heading">Participants</h2>
+            <button id="pager-next" class="pager-button" type="button" aria-controls="participant-list" aria-label="Next page of participants" hidden>
+              <span aria-hidden="true">→</span>
+            </button>
+          </div>
           <p id="participant-status" class="participant-status" role="status">Loading participants…</p>
           <div id="participant-list" class="participant-list"></div>
-          <button id="view-participants" class="text-action" type="button" aria-controls="participant-list" aria-expanded="false" hidden>
-            View full list ↓
-          </button>
         </section>
       </section>
 
@@ -185,8 +245,15 @@
           </div>
           <div class="form-intro">
             <p class="eyebrow">After you join</p>
-            <h1 id="migration-title" tabindex="-1">Move to Aster later</h1>
-            <p class="supporting">Moving your account is optional. You can do it at any time, including at the atproto.science workshop.</p>
+            <h1 id="migration-title" tabindex="-1">Moving to Aster</h1>
+            <p class="supporting">
+              Aster is a nonprofit that hosts accounts on the open web. Moving there changes <em>where</em> your account lives — you keep the same
+              account ID, so you're not starting over.
+            </p>
+            <p class="supporting">
+              Your handle may change to an Aster domain, and you can move any time — including at the atproto.science workshop, where someone can walk
+              you through it.
+            </p>
           </div>
         </div>
       </section>

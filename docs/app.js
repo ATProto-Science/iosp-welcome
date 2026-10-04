@@ -3,17 +3,17 @@ import { config } from "./config.js";
 import { restoreSession, startLogin } from "./oauth.js";
 
 const $ = (id) => document.getElementById(id);
+const on = (id, type, handler) => $(id)?.addEventListener(type, handler);
 const collection = "community.lexicon.calendar.rsvp";
 const listUri = "at://did:plc:nncebyouba4ex3775syiyvjy/app.bsky.graph.list/3mvyb5kkp6i2w";
 let selectedPath;
 let account;
 let participantCursor;
-let participantCount = 0;
 let participantsLoaded = false;
 let participantsLoading = false;
-let participantsExpanded = false;
+let participantPage = 0;
 let participantError = false;
-const participantPreviewCount = 8;
+const participantPageSize = 9;
 const participantDids = new Set();
 
 function show(id) {
@@ -39,39 +39,173 @@ function rsvpRecord() {
   };
 }
 
-async function saveRsvp() {
+function checkedIn(existing) {
+  return existing?.value?.subject?.uri === config.eventUri && existing?.value?.status === `${collection}#going`;
+}
+
+// Attending is deliberate: the RSVP record is only written when the attendee answers
+// "Attending IOSP?" themselves. Airglow turns that record into participant-list membership.
+function setAttendingUi(state, message) {
+  $("attending-prompt").hidden = state === "attending";
+  $("attending-result").hidden = state !== "attending";
+  const visible = state === "attending" ? $("rsvp-result-status") : $("rsvp-status");
+  const other = state === "attending" ? $("rsvp-status") : $("rsvp-result-status");
+  other.hidden = true;
+  visible.textContent = message || "";
+  visible.hidden = !message;
+}
+
+function fillIdentity(handle, did) {
+  const label = handle?.replace(/^@/, "");
+  $("joined-handle").textContent = label || did;
+}
+
+async function loadAccount(did, handle) {
+  const endpoint = await resolvePds(did);
+  if (account?.did !== did) return; // Signed out or switched mid-lookup.
+  showHost(endpoint, did, handle);
+}
+
+async function markAttending() {
   const current = account;
   if (!current) return;
-  const status = $("rsvp-status");
-  const retry = $("retry-rsvp");
-  retry.hidden = true;
-  status.hidden = !eventReady();
-  if (!eventReady()) return;
-  status.textContent = "Checking your RSVP…";
+  const yes = $("rsvp-yes");
+  yes.disabled = true;
+  setAttendingUi("ready");
+  if (!eventReady()) {
+    yes.disabled = false;
+    setAttendingUi("ready", "Attending isn't open yet — ask a volunteer at the desk.");
+    return;
+  }
   try {
     const existing = await current.getRecord();
+    if (current !== account) return; // Signed out or switched mid-check.
+    if (!checkedIn(existing)) await current.putRecord(rsvpRecord());
     if (current !== account) return;
-    if (existing?.value?.subject?.uri !== config.eventUri || existing?.value?.status !== `${collection}#going`) {
-      await current.putRecord(rsvpRecord());
-    }
-    if (current !== account) return;
-    status.textContent = "Your RSVP is saved. The participant list may take a moment to update.";
+    yes.disabled = false;
+    setAttendingUi("attending");
   } catch (error) {
     if (current !== account) return;
-    status.textContent = `Your account is ready, but the RSVP could not be saved: ${errorMessage(error)}`;
-    retry.hidden = false;
+    yes.disabled = false;
+    setAttendingUi("ready", `Couldn't save your RSVP: ${errorMessage(error)}`);
   }
 }
 
-async function welcome({ did, handle, getRecord, putRecord, session }) {
-  account = { did, getRecord, putRecord, session };
-  $("joined-handle").textContent = handle ? `@${handle.replace(/^@/, "")}` : did;
-  $("migration-link").hidden = Boolean(handle?.endsWith(".aster.id"));
+let undoArmed = false;
+let undoTimer;
+function disarmUndo() {
+  undoArmed = false;
+  clearTimeout(undoTimer);
+  const undo = $("rsvp-undo");
+  if (undo) undo.textContent = "Remove my RSVP";
+}
+
+async function unattend() {
+  const current = account;
+  if (!current) return;
+  const undo = $("rsvp-undo");
+  if (!undoArmed) {
+    undoArmed = true;
+    undo.textContent = "Tap again to confirm";
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(disarmUndo, 4000);
+    return;
+  }
+  disarmUndo();
+  undo.disabled = true;
+  setAttendingUi("attending");
+  try {
+    await current.deleteRecord(); // Deleted or already gone; verified below.
+    if (current !== account) return;
+    const existing = await current.getRecord();
+    if (current !== account) return;
+    if (checkedIn(existing)) throw new Error("Still on your account — try again in a moment.");
+    undo.disabled = false;
+    $("rsvp-yes").disabled = false;
+    setAttendingUi("ready");
+  } catch (error) {
+    if (current !== account) return;
+    undo.disabled = false;
+    setAttendingUi("attending", `Couldn't remove your RSVP: ${errorMessage(error)}`);
+  }
+}
+
+// Hosting is resolved from the account's DID document
+async function resolvePds(did) {
+  try {
+    let doc;
+    if (did?.startsWith("did:plc:")) {
+      const response = await fetch(`https://plc.directory/${encodeURIComponent(did)}`);
+      if (!response.ok) return null;
+      doc = await response.json();
+    } else if (did?.startsWith("did:web:")) {
+      const [host, ...segments] = did.slice("did:web:".length).split(":").map(decodeURIComponent);
+      const path = segments.join("/");
+      const response = await fetch(`https://${host}/${path ? `${path}/did.json` : ".well-known/did.json"}`);
+      if (!response.ok) return null;
+      doc = await response.json();
+    } else return null;
+    const service = (doc.service || []).find((entry) => entry.id === "#atproto_pds" || entry.type === "AtprotoPersonalDataServer");
+    return service?.serviceEndpoint?.replace(/\/$/, "") || null;
+  } catch {
+    return null;
+  }
+}
+
+async function showHost(endpoint, did, handle) {
+  const configuredAster = config.asterPdsHost.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const temporary = endpoint === config.temporaryPds.replace(/\/$/, "");
+  let host = null;
+  try {
+    host = new URL(endpoint).hostname;
+  } catch {
+    /* No endpoint: fall through to the neutral value. */
+  }
+  if (host) $("host-value").textContent = host;
+  else $("host-value").textContent = "couldn't check right now";
+
+  const onAster = configuredAster ? host === configuredAster : Boolean(handle?.replace(/^@/, "").endsWith(config.asterHandleSuffix));
+  const note = $("host-note");
+  const action = $("migration-link");
+  const base =
+    "Your handle is what you sign in with, and you can change it any time. Your DID is permanent, so your account survives a new handle or new host.";
+  if (onAster) {
+    note.textContent = `${base} This account is already on Aster, so there's nothing to do here.`;
+    action.hidden = true;
+  } else {
+    note.textContent = base;
+    action.hidden = false;
+  }
+  action.textContent = temporary ? "Move this account to Aster ↗" : "Move my account to Aster ↗";
+}
+
+async function welcome({ did, handle, getRecord, putRecord, deleteRecord, session }) {
+  account = { did, getRecord, putRecord, deleteRecord, session };
   $("password").value = "";
+  $("did-code").textContent = did;
+  fillIdentity(handle, did);
+  disarmUndo();
+  $("rsvp-yes").disabled = false;
+  $("rsvp-undo").disabled = false;
+  setAttendingUi("ready");
+  $("host-value").textContent = "…";
+  $("migration-link").hidden = false;
   show("joined");
   if (!$("conference-feed").src) $("conference-feed").src = $("conference-feed").dataset.src;
   if (!participantsLoaded) loadParticipants();
-  await saveRsvp();
+  loadAccount(did, handle);
+  if (!eventReady()) {
+    $("rsvp-yes").hidden = true;
+    setAttendingUi("ready", "Attending opens closer to the event.");
+    return;
+  }
+  $("rsvp-yes").hidden = false;
+  try {
+    const existing = await getRecord();
+    if (account?.did === did) setAttendingUi(checkedIn(existing) ? "attending" : "ready");
+  } catch {
+    if (account?.did === did) setAttendingUi("ready", "Couldn't check your RSVP status — you can still confirm below.");
+  }
 }
 
 async function welcomeOAuth(session) {
@@ -103,6 +237,7 @@ async function welcomeOAuth(session) {
       }
     },
     putRecord: (record) => agent.com.atproto.repo.putRecord({ repo: did, collection, rkey: config.rsvpRkey, record }),
+    deleteRecord: () => agent.com.atproto.repo.deleteRecord({ repo: did, collection, rkey: config.rsvpRkey }),
   });
 }
 
@@ -136,6 +271,7 @@ async function welcomeTemporary(data) {
       return response.json();
     },
     putRecord: (record) => pdsRequest("com.atproto.repo.putRecord", accessJwt, { repo: did, collection, rkey: config.rsvpRkey, record }),
+    deleteRecord: () => pdsRequest("com.atproto.repo.deleteRecord", accessJwt, { repo: did, collection, rkey: config.rsvpRkey }),
   });
 }
 
@@ -157,11 +293,15 @@ for (const button of document.querySelectorAll("[data-path]")) {
   button.addEventListener("click", () => {
     selectedPath = button.dataset.path;
     const temporary = selectedPath === "temporary";
-    $("identity-title").textContent = temporary ? "Get a temporary account" : "Sign in to IOSP";
-    $("identity-explanation").textContent = temporary ? "A temporary account for IOSP workshops." : "Use Bluesky or another Atmosphere account.";
-    $("handle-label").textContent = temporary ? "Choose a handle" : "Your handle";
-    $("handle").placeholder = temporary ? "yourname" : "you.bsky.social";
-    if (temporary) $("handle").pattern = "[a-zA-Z0-9-]+";
+    $("identity-title").textContent = temporary ? "Create a temporary account" : "Sign in to IOSP";
+    $("identity-explanation").textContent = temporary
+      ? "You can migrate it later to keep it after IOSP."
+      : "Use Bluesky or another Atmosphere account.";
+    const handleLabel = $("handle-label");
+    if (handleLabel) handleLabel.hidden = !temporary;
+    $("handle").setAttribute("aria-label", temporary ? "Choose a username" : "Your handle");
+    $("handle").placeholder = temporary ? "username" : "username.bsky.social";
+    if (temporary) $("handle").pattern = "[a-zA-Z0-9\\-]+";
     else $("handle").removeAttribute("pattern");
     $("handle").value = "";
     $("handle-suffix").textContent = config.temporaryHandleSuffix;
@@ -174,15 +314,21 @@ for (const button of document.querySelectorAll("[data-path]")) {
   });
 }
 
-$("account-form").addEventListener("submit", async (event) => {
+on("account-form", "submit", async (event) => {
   event.preventDefault();
   const button = $("continue");
   const status = $("form-status");
+  const handle = $("handle").value.trim().replace(/^@/, "");
+  if (selectedPath !== "temporary" && !handle.includes(".")) {
+    status.textContent = `Login with your full handle, e.g. ${handle}.bsky.social or ${handle}.memo.dog`;
+    status.hidden = false;
+    return;
+  }
   button.disabled = true;
   status.hidden = true;
   try {
     if (selectedPath === "temporary") await createTemporaryAccount();
-    else await startLogin($("handle").value.trim().replace(/^@/, ""));
+    else await startLogin(handle);
   } catch (error) {
     status.textContent = errorMessage(error);
     status.hidden = false;
@@ -191,9 +337,48 @@ $("account-form").addEventListener("submit", async (event) => {
   }
 });
 
-$("retry-rsvp").addEventListener("click", saveRsvp);
-$("migration-link").addEventListener("click", () => show("migration"));
-$("sign-out").addEventListener("click", async () => {
+on("rsvp-yes", "click", markAttending);
+on("rsvp-undo", "click", unattend);
+for (const button of document.querySelectorAll("[data-go]")) button.addEventListener("click", () => show(button.dataset.go));
+on("copy-record", "click", async () => {
+  const current = account;
+  if (!current) return;
+  const address = `at://${current.did}/${collection}/${config.rsvpRkey}`;
+  try {
+    await navigator.clipboard.writeText(address);
+    $("copy-record").textContent = "Address copied ✓";
+    setTimeout(() => {
+      $("copy-record").textContent = "Copy record address";
+    }, 1600);
+  } catch {
+    /* Clipboard can be blocked; nothing to show in that case. */
+  }
+});
+on("copy-did", "click", async () => {
+  const button = $("copy-did");
+  const did = $("did-code").textContent;
+  if (!did || did === "…") return;
+  if (!navigator.clipboard) {
+    $("copy-did-tip").textContent = "Couldn't copy";
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(did);
+  } catch {
+    $("copy-did-tip").textContent = "Couldn't copy";
+    setTimeout(() => {
+      $("copy-did-tip").textContent = "Copy DID";
+    }, 1600);
+    return;
+  }
+  button.classList.add("is-copied");
+  $("copy-status").textContent = "DID copied";
+  setTimeout(() => {
+    button.classList.remove("is-copied");
+    $("copy-status").textContent = "";
+  }, 1600);
+});
+on("sign-out", "click", async () => {
   const session = account?.session;
   account = null;
   show("choose");
@@ -239,30 +424,35 @@ function renderParticipant(subject) {
   handleText.textContent = subject.handle ? `@${subject.handle}` : subject.did;
   copy.append(name, handleText);
   link.append(avatar, copy);
+  link.hidden = true;
   $("participant-list").append(link);
-  participantCount++;
-  link.hidden = !participantsExpanded && participantCount > participantPreviewCount;
 }
 
 function updateParticipantView() {
-  for (const [index, link] of [...$("participant-list").children].entries()) {
-    link.hidden = !participantsExpanded && index >= participantPreviewCount;
+  const links = [...$("participant-list").children];
+  const pageCount = Math.max(1, Math.ceil(links.length / participantPageSize));
+  participantPage = Math.min(Math.max(participantPage, 0), pageCount - 1);
+  const start = participantPage * participantPageSize;
+  for (const [index, link] of links.entries()) link.hidden = index < start || index >= start + participantPageSize;
+  const pager = $("pager-next");
+  pager.disabled = participantsLoading;
+  if (participantError) {
+    pager.hidden = false;
+    pager.setAttribute("aria-label", "Retry loading participants");
+  } else {
+    pager.hidden = pageCount <= 1 && !participantCursor;
+    pager.setAttribute("aria-label", "Next page of participants");
   }
-  const toggle = $("view-participants");
-  toggle.hidden = !participantError && participantCount <= participantPreviewCount && !participantCursor;
-  toggle.disabled = false;
-  toggle.setAttribute("aria-expanded", String(participantsExpanded));
-  toggle.textContent = participantError ? "Retry loading participants ↻" : participantsExpanded ? "Show fewer participants ↑" : "View full list ↓";
 }
 
 async function loadParticipants(all = false) {
   if (participantsLoading) return;
   participantsLoading = true;
   const status = $("participant-status");
-  const toggle = $("view-participants");
-  toggle.disabled = true;
   participantError = false;
-  status.textContent = participantCount ? `${participantCount} participants loaded · loading more…` : "Loading participants…";
+  status.hidden = false;
+  status.textContent = "Loading participants…";
+  updateParticipantView();
   try {
     do {
       const params = new URLSearchParams({ list: listUri, limit: "100" });
@@ -273,12 +463,10 @@ async function loadParticipants(all = false) {
       for (const item of data.items || []) renderParticipant(item.subject);
       if (data.cursor && data.cursor === participantCursor) throw new Error("Pagination did not advance");
       participantCursor = data.cursor || null;
-      if (all && participantCursor) status.textContent = `${participantCount} participants loaded · loading more…`;
     } while (all && participantCursor);
     participantsLoaded = true;
-    status.textContent = participantCursor
-      ? `${participantCount} participants loaded`
-      : `${participantCount} participant${participantCount === 1 ? "" : "s"} on the IOSP list`;
+    if ($("participant-list").children.length) status.hidden = true;
+    else status.textContent = "No participants yet.";
   } catch {
     participantError = true;
     status.textContent = "Could not load participants. Try again.";
@@ -288,15 +476,15 @@ async function loadParticipants(all = false) {
   }
 }
 
-$("view-participants").addEventListener("click", async () => {
-  if (participantsExpanded && !participantError) {
-    participantsExpanded = false;
-    updateParticipantView();
+on("pager-next", "click", async () => {
+  if (participantError) {
+    await loadParticipants();
     return;
   }
-  participantsExpanded = true;
+  if (participantCursor) await loadParticipants(true);
+  const pageCount = Math.max(1, Math.ceil($("participant-list").children.length / participantPageSize));
+  participantPage = (participantPage + 1) % pageCount;
   updateParticipantView();
-  if (participantCursor || !participantsLoaded) await loadParticipants(true);
 });
 
 window.addEventListener("message", (event) => {
@@ -308,14 +496,15 @@ window.addEventListener("message", (event) => {
 });
 
 const picker = $("app-picker");
-$("open-feed").addEventListener("click", () => picker.showModal());
-$("close-picker").addEventListener("click", () => picker.close());
-picker.addEventListener("click", (event) => {
+on("open-feed", "click", () => picker?.showModal());
+on("close-picker", "click", () => picker?.close());
+picker?.addEventListener("click", (event) => {
   if (event.target === picker) picker.close();
 });
-for (const link of picker.querySelectorAll("a")) link.addEventListener("click", () => picker.close());
+for (const link of picker?.querySelectorAll("a") ?? []) link.addEventListener("click", () => picker.close());
 
-$("disclosure").hidden = !eventReady();
+const disclosure = $("disclosure");
+if (disclosure) disclosure.hidden = !eventReady();
 try {
   const result = await restoreSession();
   if (result) await welcomeOAuth(result.session);

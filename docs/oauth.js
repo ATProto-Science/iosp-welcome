@@ -1,7 +1,8 @@
 import { BrowserOAuthClient } from "https://esm.sh/@atproto/oauth-client-browser@0.5.8";
 import { config } from "./config.js";
 
-export const scope = "atproto repo:community.lexicon.calendar.rsvp?action=create repo:community.lexicon.calendar.rsvp?action=update";
+export const scope =
+  "atproto repo:community.lexicon.calendar.rsvp?action=create repo:community.lexicon.calendar.rsvp?action=update repo:community.lexicon.calendar.rsvp?action=delete";
 let clientPromise;
 const loopback = location.hostname === "127.0.0.1";
 const redirectUri = loopback ? new URL("./welcome.html", location.href).href : new URL("./welcome.html", config.oauthClientId).href;

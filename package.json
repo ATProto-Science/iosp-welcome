@@ -3,10 +3,15 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "format": "prettier --write \"public/**/*.{js,css,html,json}\"",
-    "format:check": "prettier --check \"public/**/*.{js,css,html,json}\""
+    "start": "http-server docs -a 127.0.0.1 -p 8765 -c-1",
+    "format": "prettier --write \"docs/**/*.{js,css,html,json}\"",
+    "format:check": "prettier --check \"docs/**/*.{js,css,html,json}\""
   },
   "devDependencies": {
+    "http-server": "^14.1.1",
     "prettier": "^3.9.6"
+  },
+  "dependencies": {
+    "playwright": "^1.63.0"
   }
 }

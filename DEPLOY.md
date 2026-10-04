@@ -6,9 +6,9 @@ This is a static site. It can be hosted via github pages or another method. To u
 
 The URLs in `public/client-metadata.json` and `public/config.js` need to reflect the host URL for login and signup to work properly. They are currently set assuming pure atscience github project pages.
 
-- Site: `https://atproto-science.github.io/iosp-kiosk/`
-- Metadata: `https://atproto-science.github.io/iosp-kiosk/client-metadata.json`
-- OAuth callback: `https://atproto-science.github.io/iosp-kiosk/welcome.html`
+- Site: `https://atproto-science.github.io/iosp-welcome/`
+- Metadata: `https://atproto-science.github.io/iosp-welcome/client-metadata.json`
+- OAuth callback: `https://atproto-science.github.io/iosp-welcome/welcome.html`
 
 ## Pre-release checklist
 

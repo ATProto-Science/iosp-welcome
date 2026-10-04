@@ -9,7 +9,7 @@
   <body>
     <main class="page">
       <header class="header">
-        <div class="brand">
+        <a class="brand" href="https://www.iosp.science/" target="_blank" rel="noopener noreferrer">
           <svg viewBox="0 0 32 32" aria-hidden="true">
             <g transform="rotate(30 16 16)">
               <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" />
@@ -17,7 +17,7 @@
             </g>
           </svg>
           <span>Institute of Open Science Practices</span>
-        </div>
+        </a>
         <button type="button" class="header-logout" id="sign-out" hidden>Log out</button>
       </header>
 
@@ -117,10 +117,15 @@
                 <p class="eyebrow">Attending</p>
                 <h2 id="attending-done-heading" class="attend-title">You're on the list.</h2>
                 <p class="attend-date">IOSP 2026 · Oct 12–15, Leiden</p>
-                <p class="attend-lead">Your RSVP is public and lives in your account. If you move between account hosts, your data moves with you.</p>
+                <p class="attend-lead">If you move between account hosts, your data moves with you.</p>
+                <div class="record-block">
+                  <span class="record-label">Record</span>
+                  <span class="record-uri" id="record-value">community.lexicon.calendar.rsvp</span>
+                  <a class="record-action" id="rsvp-record-link" href="#" target="_blank" rel="noopener noreferrer">See it here ↗</a>
+                </div>
                 <p class="attend-links">
-                  <a class="text-action is-on-dark" href="#participants-title" id="jump-to-list">See the participant list ↓</a>
-                  <button type="button" class="text-action is-on-dark" id="rsvp-undo">Remove my RSVP</button>
+                  <a class="text-action is-on-dark bold-link" href="#participants-title" id="jump-to-list">See the participant list ↓</a>
+                  <button type="button" class="text-action is-on-dark quiet-remove" id="rsvp-undo">Remove my RSVP</button>
                 </p>
                 <p id="rsvp-result-status" class="rsvp-status is-on-dark" role="status" hidden></p>
               </div>

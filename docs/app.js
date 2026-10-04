@@ -183,6 +183,8 @@ async function welcome({ did, handle, getRecord, putRecord, deleteRecord, sessio
   account = { did, getRecord, putRecord, deleteRecord, session };
   $("password").value = "";
   $("did-code").textContent = did;
+  const recordLink = $("rsvp-record-link");
+  if (recordLink) recordLink.href = `https://aturi.to/profile/${encodeURIComponent(did)}/${collection}/${config.rsvpRkey}`;
   fillIdentity(handle, did);
   disarmUndo();
   $("rsvp-yes").disabled = false;

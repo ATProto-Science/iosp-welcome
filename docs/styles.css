@@ -122,9 +122,14 @@ input {
   align-items: center;
   gap: 12px;
   min-width: 0;
+  color: inherit;
+  text-decoration: none;
   font: var(--type-eyebrow);
   letter-spacing: var(--track-eyebrow);
   text-transform: uppercase;
+}
+a.brand:hover {
+  color: var(--accent);
 }
 .brand svg {
   width: 17px;
@@ -433,6 +438,50 @@ input::placeholder {
 }
 .attend-lead + .attend-lead {
   margin-top: 4px;
+}
+/* The RSVP record as a solid white hero: the loudest thing in the saved panel */
+.record-block {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 22px;
+  padding: 16px;
+  background: #fff;
+  color: var(--ink);
+}
+.record-label {
+  flex: none;
+  color: var(--meta);
+  font: var(--type-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+.record-uri {
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--ink);
+  font: var(--type-code);
+}
+.record-action {
+  margin-left: auto;
+  color: var(--accent);
+  font: var(--type-body-small);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
+}
+.record-action:hover {
+  color: var(--ink);
+}
+.attend-panel .text-action.bold-link {
+  color: #fff;
+  font-weight: 600;
+}
+.attend-panel .text-action.quiet-remove {
+  color: rgba(255, 255, 255, 0.7);
 }
 .attend-links {
   display: flex;

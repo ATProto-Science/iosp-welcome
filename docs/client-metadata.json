@@ -1,6 +1,6 @@
 {
   "client_id": "https://atproto-science.github.io/iosp-welcome/client-metadata.json",
-  "client_name": "IOSP 2026",
+  "client_name": "IOSP 2026 - AT Protocol",
   "client_uri": "https://atproto-science.github.io/iosp-welcome/",
   "redirect_uris": ["https://atproto-science.github.io/iosp-welcome/welcome.html"],
   "grant_types": ["authorization_code", "refresh_token"],

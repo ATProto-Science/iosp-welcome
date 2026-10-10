@@ -18,13 +18,25 @@ const participantDids = new Set();
 
 function show(id) {
   for (const screen of document.querySelectorAll(".screen")) screen.hidden = screen.id !== id;
-  $("sign-out").hidden = id !== "joined" && id !== "migration";
+  $("sign-out").hidden = id !== "joined";
   $(id).querySelector("h1")?.focus();
   window.scrollTo(0, 0);
 }
 
 function errorMessage(error) {
   return error?.message || "Please try again.";
+}
+
+// The configured Aster PDS, without a trailing slash.
+const asterPds = () => config.asterPdsHost.replace(/\/+$/, "");
+
+function originOf(value) {
+  if (!value) return null;
+  try {
+    return new URL(value.includes("://") ? value : `https://${value}`).origin;
+  } catch {
+    return null;
+  }
 }
 
 function eventReady() {
@@ -153,30 +165,26 @@ async function resolvePds(did) {
 }
 
 async function showHost(endpoint, did, handle) {
-  const configuredAster = config.asterPdsHost.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const temporary = endpoint === config.temporaryPds.replace(/\/$/, "");
+  const label = handle?.replace(/^@/, "") || "";
+  const configuredAster = originOf(config.asterPdsHost);
   let host = null;
   try {
     host = new URL(endpoint).hostname;
   } catch {
     /* No endpoint: fall through to the neutral value. */
   }
-  if (host) $("host-value").textContent = host;
-  else $("host-value").textContent = "couldn't check right now";
+  $("host-value").textContent = host || "couldn't check right now";
 
-  const onAster = configuredAster ? host === configuredAster : Boolean(handle?.replace(/^@/, "").endsWith(config.asterHandleSuffix));
+  const onAster =
+    (configuredAster && originOf(endpoint) === configuredAster) || Boolean(config.asterHandleSuffix && label.endsWith(config.asterHandleSuffix));
   const note = $("host-note");
   const action = $("migration-link");
   const base =
     "Your handle is what you sign in with, and you can change it any time. Your DID is permanent, so your account survives a new handle or new host.";
-  if (onAster) {
-    note.textContent = `${base} This account is already on Aster, so there's nothing to do here.`;
-    action.hidden = true;
-  } else {
-    note.textContent = base;
-    action.hidden = false;
-  }
-  action.textContent = temporary ? "Move this account to Aster ↗" : "Move my account to Aster ↗";
+  note.textContent = base;
+  // An account already on Aster needs no explanation
+  note.hidden = Boolean(onAster);
+  action.hidden = Boolean(onAster);
 }
 
 async function welcome({ did, handle, getRecord, putRecord, deleteRecord, session }) {
@@ -244,8 +252,7 @@ async function welcomeOAuth(session) {
 }
 
 async function pdsRequest(path, token, body) {
-  const url = `${config.temporaryPds.replace(/\/$/, "")}/xrpc/${path}`;
-  const response = await fetch(url, {
+  const response = await fetch(`${asterPds()}/xrpc/${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(body),
@@ -255,14 +262,14 @@ async function pdsRequest(path, token, body) {
   return data;
 }
 
-async function welcomeTemporary(data) {
+async function welcomePds(data) {
   const { did, handle, accessJwt } = data;
   return welcome({
     did,
     handle,
     async getRecord() {
       const params = new URLSearchParams({ repo: did, collection, rkey: config.rsvpRkey });
-      const response = await fetch(`${config.temporaryPds.replace(/\/$/, "")}/xrpc/com.atproto.repo.getRecord?${params}`);
+      const response = await fetch(`${asterPds()}/xrpc/com.atproto.repo.getRecord?${params}`);
       if (response.status === 404) return null;
       if (response.status === 400) {
         const body = await response.json();
@@ -277,40 +284,40 @@ async function welcomeTemporary(data) {
   });
 }
 
-async function createTemporaryAccount() {
+async function createAsterAccount() {
   const prefix = $("handle").value.trim().toLowerCase();
-  const handle = `${prefix}${config.temporaryHandleSuffix}`;
-  const response = await fetch(`${config.temporaryPds.replace(/\/$/, "")}/xrpc/com.atproto.server.createAccount`, {
+  const handle = `${prefix}${config.asterHandleSuffix}`;
+  const response = await fetch(`${asterPds()}/xrpc/com.atproto.server.createAccount`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ handle, email: `${prefix}@memo.dog`, password: $("password").value }),
+    body: JSON.stringify({ handle, inviteCode: config.asterInviteCode, password: $("password").value }),
   });
   const data = await response.json();
   if (!response.ok) throw new Error(data.message || data.error || `HTTP ${response.status}`);
-  if (!data.did || !data.accessJwt) throw new Error("Account created, but no session was returned. Sign in with your new handle.");
-  await welcomeTemporary(data);
+  if (!data.did || !data.accessJwt) throw new Error("Account created, but no session came back. Sign in with your new handle.");
+  await welcomePds(data);
 }
 
 for (const button of document.querySelectorAll("[data-path]")) {
   button.addEventListener("click", () => {
     selectedPath = button.dataset.path;
-    const temporary = selectedPath === "temporary";
-    $("identity-title").textContent = temporary ? "Create a temporary account" : "Sign in to IOSP";
-    $("identity-explanation").textContent = temporary
-      ? "You can migrate it later to keep it after IOSP."
-      : "Use Bluesky or another Atmosphere account.";
+    const aster = selectedPath === "aster";
+    $("identity-title").textContent = aster ? "Sign up with Aster" : "Sign in";
+    $("identity-explanation").textContent = aster
+      ? "Creates an Aster account with the workshop's invite code, yours to keep afterwards."
+      : "Use the account you got at IOSP check-in, or any other Atmosphere account.";
     const handleLabel = $("handle-label");
-    if (handleLabel) handleLabel.hidden = !temporary;
-    $("handle").setAttribute("aria-label", temporary ? "Choose a username" : "Your handle");
-    $("handle").placeholder = temporary ? "username" : "username.bsky.social";
-    if (temporary) $("handle").pattern = "[a-zA-Z0-9\\-]+";
+    if (handleLabel) handleLabel.hidden = !aster;
+    $("handle").setAttribute("aria-label", aster ? "Choose a username" : "Your handle");
+    $("handle").placeholder = aster ? "username" : "username.bsky.social";
+    if (aster) $("handle").pattern = "[a-zA-Z0-9\\-]+";
     else $("handle").removeAttribute("pattern");
     $("handle").value = "";
-    $("handle-suffix").textContent = config.temporaryHandleSuffix;
-    $("handle-suffix").hidden = !temporary;
-    $("signup-fields").hidden = !temporary;
-    $("password").required = temporary;
-    $("continue-label").textContent = temporary ? "Create account" : "Continue to sign in";
+    $("handle-suffix").textContent = config.asterHandleSuffix;
+    $("handle-suffix").hidden = !aster;
+    $("signup-fields").hidden = !aster;
+    $("password").required = aster;
+    $("continue-label").textContent = aster ? "Create account" : "Continue to sign in";
     $("form-status").hidden = true;
     show("identity");
   });
@@ -321,15 +328,20 @@ on("account-form", "submit", async (event) => {
   const button = $("continue");
   const status = $("form-status");
   const handle = $("handle").value.trim().replace(/^@/, "");
-  if (selectedPath !== "temporary" && !handle.includes(".")) {
-    status.textContent = `Login with your full handle, e.g. ${handle}.bsky.social or ${handle}.memo.dog`;
+  if (selectedPath !== "aster" && !handle.includes(".")) {
+    status.textContent = `Use your full handle, e.g. ${handle}.bsky.social`;
+    status.hidden = false;
+    return;
+  }
+  if (selectedPath === "aster" && (!config.asterPdsHost || !config.asterInviteCode)) {
+    status.textContent = "Aster signup isn't configured yet — ask a volunteer at the desk.";
     status.hidden = false;
     return;
   }
   button.disabled = true;
   status.hidden = true;
   try {
-    if (selectedPath === "temporary") await createTemporaryAccount();
+    if (selectedPath === "aster") await createAsterAccount();
     else await startLogin(handle);
   } catch (error) {
     status.textContent = errorMessage(error);
@@ -342,20 +354,6 @@ on("account-form", "submit", async (event) => {
 on("rsvp-yes", "click", markAttending);
 on("rsvp-undo", "click", unattend);
 for (const button of document.querySelectorAll("[data-go]")) button.addEventListener("click", () => show(button.dataset.go));
-on("copy-record", "click", async () => {
-  const current = account;
-  if (!current) return;
-  const address = `at://${current.did}/${collection}/${config.rsvpRkey}`;
-  try {
-    await navigator.clipboard.writeText(address);
-    $("copy-record").textContent = "Address copied ✓";
-    setTimeout(() => {
-      $("copy-record").textContent = "Copy record address";
-    }, 1600);
-  } catch {
-    /* Clipboard can be blocked; nothing to show in that case. */
-  }
-});
 on("copy-did", "click", async () => {
   const button = $("copy-did");
   const did = $("did-code").textContent;
@@ -392,7 +390,29 @@ on("sign-out", "click", async () => {
     }
   }
 });
-for (const button of document.querySelectorAll("[data-go]")) button.addEventListener("click", () => show(button.dataset.go));
+
+// One tab per station
+const stationTabs = [...document.querySelectorAll(".station-tab")];
+function selectStation(tab) {
+  for (const other of stationTabs) {
+    const selected = other === tab;
+    other.setAttribute("aria-selected", String(selected));
+    other.tabIndex = selected ? 0 : -1;
+    $(other.getAttribute("aria-controls")).hidden = !selected;
+  }
+}
+for (const tab of stationTabs) {
+  tab.addEventListener("click", () => selectStation(tab));
+  tab.addEventListener("keydown", (event) => {
+    if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
+    event.preventDefault();
+    const step = event.key === "ArrowRight" ? 1 : stationTabs.length - 1;
+    const next = stationTabs[(stationTabs.indexOf(tab) + step) % stationTabs.length];
+    next.focus();
+    selectStation(next);
+  });
+}
+selectStation(stationTabs[0]);
 
 function renderParticipant(subject) {
   if (!subject?.did || participantDids.has(subject.did)) return;
@@ -505,8 +525,6 @@ picker?.addEventListener("click", (event) => {
 });
 for (const link of picker?.querySelectorAll("a") ?? []) link.addEventListener("click", () => picker.close());
 
-const disclosure = $("disclosure");
-if (disclosure) disclosure.hidden = !eventReady();
 try {
   const result = await restoreSession();
   if (result) await welcomeOAuth(result.session);

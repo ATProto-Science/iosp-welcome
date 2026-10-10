@@ -3,56 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Open web at IOSP 2026</title>
+    <title>Own your research network with AT Protocol · IOSP 2026</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="page">
-      <header class="header">
-        <a class="brand" href="https://www.iosp.science/" target="_blank" rel="noopener noreferrer">
-          <svg viewBox="0 0 32 32" aria-hidden="true">
-            <g transform="rotate(30 16 16)">
-              <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" />
-              <path d="M-1.8 0 1.8 0 0 3Z" transform="translate(25.97 11.35) rotate(-25)" fill="#1d2d8e" />
-            </g>
-          </svg>
-          <span>Institute of Open Science Practices</span>
-        </a>
-        <button type="button" class="header-logout" id="sign-out" hidden>Log out</button>
-      </header>
-
       <section class="screen" id="choose" aria-labelledby="choose-title">
         <div class="paper entry-paper">
           <div class="folio-meta">
-            <span>IOSP 2026 <span class="meta-divider">·</span> Edition 02</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+            <a class="folio-link" href="https://www.iosp.science/" target="_blank" rel="noopener noreferrer"
+              >IOSP 2026 <span class="meta-divider">·</span> AT Protocol workshop</a
+            ><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
           </div>
           <div class="entry-layout">
             <div class="entry-intro">
-              <svg class="hero-mark" viewBox="0 0 32 32" aria-hidden="true">
-                <g transform="rotate(30 16 16)">
-                  <path d="M25.97 20.65A11 11 0 1 1 25.97 11.35" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-                  <path d="M-1.8 0 1.8 0 0 3Z" transform="translate(25.97 11.35) rotate(-25)" fill="#1d2d8e" />
-                </g>
-              </svg>
-              <h1 id="choose-title" tabindex="-1">IOSP 2026</h1>
-              <p class="entry-lead">Your way into <em>the open web.</em></p>
+              <h1 id="choose-title" tabindex="-1">Own your research network</h1>
+              <p class="entry-lead">with <em>AT Protocol.</em></p>
+              <p class="action-intro">
+                You have a temporary account from IOSP check-in. Use it here, or sign up with Aster and keep the account afterwards.
+              </p>
             </div>
             <div class="entry-actions">
               <p class="eyebrow">Get started</p>
-              <p class="action-intro">You will use an Atmosphere account throughout the conference for various workshops.</p>
               <div class="choices" aria-label="Choose an account path">
                 <button class="choice" type="button" data-path="existing">
                   <span class="number">01</span
                   ><span class="choice-body"
                     ><span class="choice-title">Sign in with your account</span
-                    ><span class="redacted" aria-hidden="true">Use the Atmosphere account you already have.</span></span
+                    ><span class="choice-note">Any Atmosphere account — from IOSP, Bluesky, and beyond</span></span
                   ><span class="arrow" aria-hidden="true">→</span>
                 </button>
-                <button class="choice" type="button" data-path="temporary">
+                <button class="choice" type="button" data-path="aster">
                   <span class="number">02</span
                   ><span class="choice-body"
-                    ><span class="choice-title">Get a temporary account</span
-                    ><span class="redacted" aria-hidden="true">For workshops now; migration can happen anytime.</span></span
+                    ><span class="choice-title">Sign up with Aster</span
+                    ><span class="choice-note">Create an Atmosphere account, hosted by a non‑profit for researchers</span></span
                   ><span class="arrow" aria-hidden="true">→</span>
                 </button>
               </div>
@@ -65,12 +50,14 @@
         <button class="back" type="button" data-go="choose">← Account options</button>
         <div class="paper form-paper">
           <div class="folio-meta">
-            <span>IOSP 2026 <span class="meta-divider">·</span> Account</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+            <a class="folio-link" href="https://www.iosp.science/" target="_blank" rel="noopener noreferrer"
+              >IOSP 2026 <span class="meta-divider">·</span> AT Protocol workshop</a
+            ><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
           </div>
           <div class="form-layout">
             <div class="form-intro">
               <p class="eyebrow">Open web access</p>
-              <h1 id="identity-title" tabindex="-1">Sign in to IOSP</h1>
+              <h1 id="identity-title" tabindex="-1">Sign in</h1>
               <p id="identity-explanation" class="supporting"></p>
             </div>
             <form class="identity-step" id="account-form">
@@ -180,39 +167,108 @@
                 Your DID is permanent, so your account survives a new handle or new host. You can sign in with your DID or, more conveniently, your
                 handle.
               </p>
-              <p class="panel-action"><button type="button" class="text-action" id="migration-link">Move my account to Aster ↗</button></p>
+              <p class="panel-action">
+                <button type="button" class="text-action" id="migration-link" data-go="migration">Move my account to Aster →</button>
+                <button type="button" class="panel-logout" id="sign-out" hidden>Log out</button>
+              </p>
             </div>
           </div>
           <p id="copy-status" class="sr-only" role="status" aria-live="polite"></p>
         </div>
 
         <div class="joined-columns">
-          <section class="workshops paper" aria-labelledby="workshops-title">
-            <h2 id="workshops-title" class="section-heading">Workshops</h2>
-            <p class="workshop-intro redacted" aria-hidden="true">Find your way to the workshops and meet the people building the open web.</p>
-            <div class="workshop-row" aria-hidden="true">
-              <span class="number">01</span
-              ><span class="workshop-copy"
-                ><span class="redacted workshop-title">Build an open science network together</span
-                ><span class="redacted workshop-detail">Oct 12 · In person at the conference</span
-                ><span class="redacted workshop-action">Explore workshop</span></span
+          <section class="workshops paper" aria-labelledby="stations-title">
+            <h2 id="stations-title" class="section-heading">Stations</h2>
+            <p class="workshop-intro">Stations run in parallel from 3:30. Pick one, or move between them.</p>
+            <div class="station-tabs" role="tablist" aria-label="Stations in this workshop">
+              <button class="station-tab" id="tab-start" type="button" role="tab" aria-selected="true" aria-controls="station-start">
+                Start here
+              </button>
+              <button
+                class="station-tab"
+                id="tab-bluesky"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="station-bluesky"
+                tabindex="-1"
               >
+                Bluesky
+              </button>
+              <button class="station-tab" id="tab-sifa" type="button" role="tab" aria-selected="false" aria-controls="station-sifa" tabindex="-1">
+                Sifa
+              </button>
+              <button class="station-tab" id="tab-semble" type="button" role="tab" aria-selected="false" aria-controls="station-semble" tabindex="-1">
+                Semble
+              </button>
+              <button
+                class="station-tab"
+                id="tab-matadisco"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="station-matadisco"
+                tabindex="-1"
+              >
+                Matadisco
+              </button>
+              <button
+                class="station-tab"
+                id="tab-sensors"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="station-sensors"
+                tabindex="-1"
+              >
+                Sensors
+              </button>
+              <button
+                class="station-tab"
+                id="tab-institutions"
+                type="button"
+                role="tab"
+                aria-selected="false"
+                aria-controls="station-institutions"
+                tabindex="-1"
+              >
+                Institutions
+              </button>
             </div>
-            <div class="workshop-row" aria-hidden="true">
-              <span class="number">02</span
-              ><span class="workshop-copy"
-                ><span class="redacted workshop-title">Explore the tools of the Atmosphere</span
-                ><span class="redacted workshop-detail">Oct 13 · Learn by making something</span
-                ><span class="redacted workshop-action">Explore workshop</span></span
-              >
+            <div class="station-panel" id="station-start" role="tabpanel" aria-labelledby="tab-start">
+              <p class="station-detail">Get oriented: what Aster and the Atmosphere are, and how to claim an account you keep.</p>
+              <p class="station-lead">With Ariel</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
             </div>
-            <div class="workshop-row" aria-hidden="true">
-              <span class="number">03</span
-              ><span class="workshop-copy"
-                ><span class="redacted workshop-title">Meet the community around research</span
-                ><span class="redacted workshop-detail">Oct 14 · Find the next thing to do</span
-                ><span class="redacted workshop-action">Explore workshop</span></span
-              >
+            <div class="station-panel" id="station-bluesky" role="tabpanel" aria-labelledby="tab-bluesky" hidden>
+              <p class="station-detail">Build a custom feed or starter pack around your research community, with a live feed-building demo.</p>
+              <p class="station-lead">With Ariel</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+            </div>
+            <div class="station-panel" id="station-sifa" role="tabpanel" aria-labelledby="tab-sifa" hidden>
+              <p class="station-detail">Stand up a personal research page that lists your work and travels with you.</p>
+              <p class="station-lead">With Guido</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+            </div>
+            <div class="station-panel" id="station-semble" role="tabpanel" aria-labelledby="tab-semble" hidden>
+              <p class="station-detail">Import your Zotero references and turn them into a living literature review others can build on.</p>
+              <p class="station-lead">With Ronen</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+            </div>
+            <div class="station-panel" id="station-matadisco" role="tabpanel" aria-labelledby="tab-matadisco" hidden>
+              <p class="station-detail">Set up a live stream of real data publishing as records anyone on the network can find.</p>
+              <p class="station-lead">With Robin</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+            </div>
+            <div class="station-panel" id="station-sensors" role="tabpanel" aria-labelledby="tab-sensors" hidden>
+              <p class="station-detail">Publish live sensor data as records, and wire events between accounts so readings show up elsewhere.</p>
+              <p class="station-lead">With Torsten</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+            </div>
+            <div class="station-panel" id="station-institutions" role="tabpanel" aria-labelledby="tab-institutions" hidden>
+              <p class="station-detail">Small-group conversations about how labs, departments, and organizations can use this infrastructure.</p>
+              <p class="station-lead">With Mathew</p>
+              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
             </div>
           </section>
           <section class="feed-preview paper" aria-labelledby="feed-title">
@@ -243,10 +299,12 @@
       </section>
 
       <section class="screen" id="migration" aria-labelledby="migration-title" hidden>
-        <button class="back" type="button" data-go="joined">← Back to IOSP</button>
+        <button class="back" type="button" data-go="joined">← Back to the workshop</button>
         <div class="paper form-paper">
           <div class="folio-meta">
-            <span>IOSP 2026 <span class="meta-divider">·</span> Your account</span><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+            <a class="folio-link" href="https://www.iosp.science/" target="_blank" rel="noopener noreferrer"
+              >IOSP 2026 <span class="meta-divider">·</span> AT Protocol workshop</a
+            ><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
           </div>
           <div class="form-intro">
             <p class="eyebrow">After you join</p>
@@ -256,9 +314,10 @@
               account ID, so you're not starting over.
             </p>
             <p class="supporting">
-              Your handle may change to an Aster domain, and you can move any time — including at the atproto.science workshop, where someone can walk
-              you through it.
+              Your handle may change to an Aster domain. You can do this at any point, and at this workshop someone can walk you through it — come to
+              the Start here station.
             </p>
+            <p class="redacted" aria-hidden="true">Migration instructions and the link to start it</p>
           </div>
         </div>
       </section>

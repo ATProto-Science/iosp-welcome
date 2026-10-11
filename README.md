@@ -22,8 +22,35 @@ The flow:
 - `asterHandleSuffix` — handle suffix offered during Aster signup (`.aster.id`).
 - `asterInviteCode` — the workshop's single multi-use invite code. It is embedded in client-side JS, so it must be safe to publish and share.
 - `eventUri` / `eventCid` / `rsvpRkey` — the event the RSVP points at.
+- `sembleCollectionUri` — the workshop's open Semble collection, previewed in the Semble station.
 
 The Aster PDS must allow CORS from the deployed origin.
+
+## Semble collection preview
+
+The Semble station lists the newest links in `sembleCollectionUri`. Cards are joined to a collection
+by `network.cosmik.collectionLink` records, and each record lives in the repo of whoever added the
+card — so an **open** collection carries no card list of its own and can't be read from the
+collection record alone. Membership is only discoverable through a backlink index:
+
+1. **Constellation** (`constellation.microcosm.blue`) returns the `collectionLink` records pointing
+   at the collection, newest-first ordering left to the caller.
+2. **Slingshot** (`slingshot.microcosm.blue`) hydrates each pointer into the link record, then into
+   the card it references, and resolves the owner handles used in the "open the collection" link.
+
+Both are unauthenticated and send permissive CORS headers, so the page can call them directly.
+The preview shows the four newest cards in a grid — one column on a phone, two on a laptop — and only
+loads when the Semble tab is opened. Until the collection has its first card it shows the collection's
+own description instead.
+
+The preview is styled to match Semble's own collection cards rather than this page's editorial
+system — 16px card radius over a 1px `#dee2e6` border, a square thumbnail, warm ink, pill badges —
+so it reads as a window into Semble. The "View the full collection" pill uses Semble's own accent
+(`#ff6400`, their `--mantine-primary-color-filled`) with a white label, matching Semble's buttons —
+that pairing is 2.98:1, below AA at this label size, and is deliberate rather than an oversight.
+The styling needs Hanken Grotesk, which Semble uses and this page
+otherwise doesn't; it's self-hosted in `docs/fonts/` with its OFL licence alongside the others, and
+the browser only fetches it once the Semble panel is shown.
 
 ## TODO
 

@@ -405,6 +405,187 @@ function loadFeed() {
   $("conference-feed").src = feedUrl();
 }
 
+// The workshop's open Semble collection. Cards join a collection through
+// network.cosmik.collectionLink records, which live in the repo of whoever added
+// them — so an open collection carries no card list of its own and can only be
+// listed through a backlink index. Constellation returns the pointers; Slingshot
+// hydrates them.
+const constellation = "https://constellation.microcosm.blue/xrpc";
+const slingshot = "https://slingshot.microcosm.blue/xrpc";
+const collectionLink = "network.cosmik.collectionLink";
+const collectionSource = `${collectionLink}:collection.uri`;
+const previewCards = 4;
+let collectionPreviewLoading = false;
+let collectionPreviewLoaded = false;
+
+async function getJson(url) {
+  const response = await fetch(url);
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
+
+// Cached by promise so repeated lookups for the same DID cost one request.
+const handleCache = new Map();
+function handleOf(did) {
+  if (!did) return Promise.resolve("");
+  if (!handleCache.has(did)) {
+    const request = getJson(`${slingshot}/blue.microcosm.identity.resolveMiniDoc?${new URLSearchParams({ identifier: did })}`)
+      .then((doc) => doc?.handle || "")
+      .catch(() => "");
+    handleCache.set(did, request);
+  }
+  return handleCache.get(did);
+}
+
+// Semble addresses a collection by handle; fall back to the DID if lookup fails.
+function collectionUrl(uri, handle) {
+  const [owner, , rkey] = uri.replace("at://", "").split("/");
+  return `https://semble.so/profile/${handle || owner}/collections/${rkey}`;
+}
+
+function hostOf(url) {
+  try {
+    return new URL(url).hostname.replace(/^www\./, "");
+  } catch {
+    return "";
+  }
+}
+
+function collectionCard(card) {
+  const content = card.content || {};
+  const metadata = content.metadata || {};
+  const link = document.createElement("a");
+  link.className = "collection-card";
+  link.href = content.url;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+
+  const host = hostOf(content.url);
+  const text = document.createElement("span");
+  text.className = "collection-card-text";
+  const site = document.createElement("span");
+  site.className = "collection-card-host";
+  site.textContent = host;
+  const title = document.createElement("span");
+  title.className = "collection-card-title";
+  title.textContent = metadata.title || content.url;
+  text.append(site, title);
+  if (metadata.description) {
+    const description = document.createElement("span");
+    description.className = "collection-card-description";
+    description.textContent = metadata.description;
+    text.append(description);
+  }
+  const thumb = document.createElement("span");
+  thumb.className = "collection-card-thumb";
+  const initial = document.createElement("span");
+  initial.textContent = (metadata.siteName || host || "?").charAt(0).toUpperCase();
+  thumb.append(initial);
+  if (metadata.imageUrl) {
+    const image = document.createElement("img");
+    image.src = metadata.imageUrl;
+    image.alt = "";
+    image.loading = "lazy";
+    image.referrerPolicy = "no-referrer";
+    image.addEventListener("error", () => image.remove());
+    thumb.append(image);
+  }
+
+  link.append(text, thumb);
+  // The whole row is the target, so a thumb hits it without aiming at the title.
+  const item = document.createElement("li");
+  item.append(link);
+  return item;
+}
+
+function renderCollectionPreview({ name, description, handle, cards }, uri) {
+  const preview = $("collection-preview");
+  preview.replaceChildren();
+
+  const head = document.createElement("p");
+  head.className = "collection-head";
+  const title = document.createElement("span");
+  title.className = "collection-name";
+  title.textContent = name;
+  const open = document.createElement("a");
+  open.className = "collection-open";
+  open.href = collectionUrl(uri, handle);
+  open.target = "_blank";
+  open.rel = "noopener noreferrer";
+  open.textContent = "View the full collection ↗";
+  head.append(title, open);
+  preview.append(head);
+
+  if (cards.length) {
+    const list = document.createElement("ol");
+    list.className = "collection-list";
+    for (const card of cards) list.append(collectionCard(card));
+    preview.append(list);
+  } else {
+    const status = document.createElement("p");
+    status.className = "collection-status";
+    status.textContent = description || "No links yet.";
+    preview.append(status);
+  }
+}
+
+// Loaded when the Semble tab is opened, so the first paint stays free of network.
+async function loadCollectionPreview() {
+  const uri = config.sembleCollectionUri;
+  if (!uri || collectionPreviewLoading || collectionPreviewLoaded || !$("collection-preview")) return;
+  collectionPreviewLoading = true;
+  try {
+    const owner = uri.replace("at://", "").split("/")[0];
+    const [record, links] = await Promise.all([
+      getJson(`${slingshot}/blue.microcosm.repo.getRecordByUri?${new URLSearchParams({ at_uri: uri })}`),
+      // A couple spare, since a card with nothing to link to is dropped below.
+      getJson(
+        `${constellation}/blue.microcosm.links.getBacklinks?${new URLSearchParams({ subject: uri, source: collectionSource, limit: String(previewCards + 2) })}`,
+      ),
+    ]);
+    const hydrated = await Promise.all(
+      (links.records || []).map(async (pointer) => {
+        const link = await getJson(
+          `${slingshot}/com.atproto.repo.getRecord?${new URLSearchParams({
+            repo: pointer.did,
+            collection: pointer.collection,
+            rkey: pointer.rkey,
+          })}`,
+        );
+        const cardUri = link?.value?.card?.uri;
+        if (!cardUri) return null;
+        const card = await getJson(`${slingshot}/blue.microcosm.repo.getRecordByUri?${new URLSearchParams({ at_uri: cardUri })}`);
+        if (!card?.value?.content?.url) return null;
+        // Index order isn't a reliable recency order; sort on the link's own timestamp.
+        return {
+          addedAt: link.value.addedAt || link.value.createdAt || "",
+          content: card.value.content,
+        };
+      }),
+    );
+    const recent = hydrated
+      .filter(Boolean)
+      .sort((a, b) => (a.addedAt < b.addedAt ? 1 : -1))
+      .slice(0, previewCards);
+    const preview = {
+      name: record?.value?.name || "Collection",
+      description: record?.value?.description,
+      handle: await handleOf(owner),
+      cards: recent,
+    };
+    renderCollectionPreview(preview, uri);
+    collectionPreviewLoaded = true;
+  } catch (error) {
+    console.warn("Could not load the Semble collection:", error);
+    const status = document.createElement("p");
+    status.className = "collection-status";
+    status.textContent = "Couldn't load the reading list right now.";
+    $("collection-preview").replaceChildren(status);
+  } finally {
+    collectionPreviewLoading = false;
+  }
+}
+
 // One tab per station
 const stationTabs = [...document.querySelectorAll(".station-tab")];
 function selectStation(tab) {
@@ -414,6 +595,7 @@ function selectStation(tab) {
     other.tabIndex = selected ? 0 : -1;
     $(other.getAttribute("aria-controls")).hidden = !selected;
   }
+  if (tab?.id === "tab-semble") loadCollectionPreview();
 }
 for (const tab of stationTabs) {
   tab.addEventListener("click", () => selectStation(tab));

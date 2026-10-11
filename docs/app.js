@@ -1,4 +1,3 @@
-import { Agent } from "https://esm.sh/@atproto/api@0.13";
 import { config } from "./config.js";
 import { restoreSession, startLogin } from "./oauth.js";
 
@@ -24,7 +23,10 @@ function show(id) {
 }
 
 function errorMessage(error) {
-  return error?.message || "Please try again.";
+  const message = error?.message || "";
+  if (/dynamically imported module|Failed to fetch|NetworkError/i.test(message))
+    return "Couldn't reach the sign-in service. Check your connection and try again.";
+  return message || "Please try again.";
 }
 
 // The configured Aster PDS, without a trailing slash.
@@ -201,7 +203,7 @@ async function welcome({ did, handle, getRecord, putRecord, deleteRecord, sessio
   $("host-value").textContent = "…";
   $("migration-link").hidden = false;
   show("joined");
-  if (!$("conference-feed").src) $("conference-feed").src = $("conference-feed").dataset.src;
+  if (!$("conference-feed").src) loadFeed();
   if (!participantsLoaded) loadParticipants();
   loadAccount(did, handle);
   if (!eventReady()) {
@@ -219,6 +221,7 @@ async function welcome({ did, handle, getRecord, putRecord, deleteRecord, sessio
 }
 
 async function welcomeOAuth(session) {
+  const { Agent } = await import("https://esm.sh/@atproto/api@0.13");
   const agent = new Agent(session);
   const did = session.did;
   let handle;
@@ -391,6 +394,17 @@ on("sign-out", "click", async () => {
   }
 });
 
+function feedUrl() {
+  const url = new URL($("conference-feed").dataset.src);
+  if (window.matchMedia("(prefers-color-scheme: dark)").matches)
+    for (const key of ["bgColor", "primaryTextColor", "secondaryTextColor"]) url.searchParams.delete(key);
+  return url.href;
+}
+
+function loadFeed() {
+  $("conference-feed").src = feedUrl();
+}
+
 // One tab per station
 const stationTabs = [...document.querySelectorAll(".station-tab")];
 function selectStation(tab) {
@@ -413,6 +427,10 @@ for (const tab of stationTabs) {
   });
 }
 selectStation(stationTabs[0]);
+
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+  if ($("conference-feed").src) loadFeed();
+});
 
 function renderParticipant(subject) {
   if (!subject?.did || participantDids.has(subject.did)) return;
@@ -529,7 +547,5 @@ try {
   const result = await restoreSession();
   if (result) await welcomeOAuth(result.session);
 } catch (error) {
-  $("form-status").textContent = `Could not restore sign-in: ${errorMessage(error)}`;
-  $("form-status").hidden = false;
-  show("identity");
+  console.warn("Could not restore sign-in:", error);
 }

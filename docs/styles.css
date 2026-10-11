@@ -17,6 +17,7 @@
   font-display: swap;
 }
 :root {
+  color-scheme: light;
   font-family: Geist, system-ui, sans-serif;
   color: var(--ink);
   background: var(--page);

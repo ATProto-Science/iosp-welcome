@@ -3,17 +3,26 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f7f9" />
     <title>Completing Sign-in · IOSP 2026</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
     <main class="page">
-      <header class="header"><span class="brand">IOSP 2026</span></header>
-      <div class="intro">
-        <h1>Finishing sign-in…</h1>
-        <p id="status" class="supporting" role="status">Confirming your account.</p>
-        <p><a href="./index.html">Back to the workshop</a></p>
-      </div>
+      <section class="screen" aria-labelledby="welcome-title">
+        <div class="paper entry-paper">
+          <div class="folio-meta">
+            <a class="folio-link" href="https://www.iosp.science/" target="_blank" rel="noopener noreferrer"
+              >IOSP 2026 <span class="meta-divider">·</span> AT Protocol workshop</a
+            ><span>Oct 12–15 <span class="meta-divider">/</span> Leiden</span>
+          </div>
+          <div class="entry-intro callback-intro">
+            <h1 id="welcome-title">Finishing sign-in…</h1>
+            <p id="status" class="supporting" role="status">Confirming your account.</p>
+            <p class="supporting"><a class="text-action" href="./index.html">Back to the workshop</a></p>
+          </div>
+        </div>
+      </section>
     </main>
     <script type="module">
       import { restoreSession } from "./oauth.js";

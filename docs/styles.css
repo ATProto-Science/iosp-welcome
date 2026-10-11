@@ -207,6 +207,9 @@ h1:focus {
   max-width: 46ch;
   margin: 30px 0 0;
 }
+.callback-intro {
+  padding: 34px 0 8px;
+}
 .choices {
   border-top: 1px solid var(--rule-strong);
 }
@@ -224,7 +227,8 @@ h1:focus {
   text-align: left;
   cursor: pointer;
 }
-.choice:hover {
+.choice:hover,
+.choice:active {
   color: var(--accent);
 }
 .choice-body {
@@ -374,6 +378,11 @@ input::placeholder {
 .panel-split {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+}
+/* A nowrap row inside one panel must be free to shrink, or its min-content width
+   widens the track and the whole page scrolls sideways. */
+.panel-split > * {
+  min-width: 0;
 }
 .attend-panel {
   background: var(--accent);
@@ -676,7 +685,8 @@ input::placeholder {
   letter-spacing: -0.01em;
   cursor: pointer;
 }
-.station-tab:hover {
+.station-tab:hover,
+.station-tab:active {
   color: var(--ink);
 }
 .station-tab:focus-visible {
@@ -827,6 +837,7 @@ input::placeholder {
 .app-picker {
   width: min(100% - 28px, 620px);
   max-height: min(80vh, 720px);
+  max-height: min(80dvh, 720px);
   padding: 22px 26px;
   border: 1px solid var(--rule-strong);
   background: #f6f7f9;
@@ -899,6 +910,32 @@ a:focus-visible,
 input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
+}
+/* Expand hit area around a text-sized label without moving anything on the page */
+@media (pointer: coarse) {
+  .back,
+  .text-action,
+  .panel-logout,
+  .folio-link,
+  .picker-close {
+    position: relative;
+  }
+  .back::after,
+  .text-action::after,
+  .panel-logout::after,
+  .folio-link::after {
+    content: "";
+    position: absolute;
+    inset: -12px -8px;
+  }
+  .picker-close::after {
+    content: "";
+    position: absolute;
+    inset: -9px -13px;
+  }
+  .station-tab {
+    padding: 11px 12px;
+  }
 }
 @media (max-width: 800px) {
   .entry-layout,
@@ -978,13 +1015,36 @@ input:focus-visible {
     padding: 26px 0 10px;
     gap: 24px;
   }
+  /* iOS Safari zooms the whole page in when a focused field is under 16px. */
+  input {
+    font-size: 16px;
+  }
   .joined-columns {
     gap: 28px;
+  }
+  .record-block {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+  }
+  .record-uri {
+    white-space: normal;
+    overflow-wrap: anywhere;
+    overflow: visible;
+  }
+  .record-action {
+    flex: 1 1 100%;
+    margin-left: 0;
   }
   .workshops,
   .feed-preview,
   .participants {
     padding: 24px;
+  }
+  .feed-preview {
+    padding: 22px 0 0;
+  }
+  .feed-heading {
+    padding: 0 24px;
   }
   .section-heading {
     font-size: 29px;

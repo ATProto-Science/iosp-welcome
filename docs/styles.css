@@ -207,7 +207,16 @@ h1:focus {
   visibility: hidden;
 }
 [data-restoring] #restoring-note {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 24px;
+  background: var(--page);
   visibility: visible;
+  text-align: center;
 }
 #restoring-note:empty {
   display: none;
@@ -791,6 +800,79 @@ input::placeholder {
 .schedule-note {
   color: var(--muted);
   font-weight: 400;
+}
+.matadisco-preview {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+.matadisco-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.matadisco-heading h3 {
+  margin: 0;
+  font: var(--type-heading-2);
+}
+.matadisco-heading a {
+  flex: none;
+  color: var(--accent);
+  font: var(--type-body-small);
+  text-decoration: none;
+}
+.matadisco-heading a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.matadisco-scenes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.matadisco-scene {
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  padding: 8px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.matadisco-scene:hover {
+  border-color: var(--accent);
+}
+.matadisco-scene img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 2.35 / 1;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--page);
+  object-fit: cover;
+}
+.matadisco-scene-kind {
+  margin-top: 7px;
+  color: var(--meta);
+  font: var(--type-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+.matadisco-scene-tile {
+  margin-top: 2px;
+  font: var(--type-body-small);
+  font-weight: 600;
+}
+.matadisco-scene-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 8px;
+  margin-top: 6px;
+  color: var(--muted);
+  font: var(--type-metadata);
 }
 .bluesky-cards {
   display: grid;

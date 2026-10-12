@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f6f7f9" />
     <title>Own your research network with AT Protocol · IOSP 2026</title>
+    <link rel="preconnect" href="https://esm.sh" crossorigin />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -241,7 +242,8 @@
               </button>
             </div>
             <div class="station-panel" id="station-start" role="tabpanel" aria-labelledby="tab-start">
-              <p class="station-detail">Get oriented: what Aster and the Atmosphere are, and how to claim an account you keep.</p>
+              <p class="station-detail">Get to know Aster and the Atmosphere, then claim an account you can keep.</p>
+              <p class="station-lead">With Ariel</p>
               <div class="start-actions" aria-label="Workshop actions">
                 <a
                   class="start-action"
@@ -275,7 +277,6 @@
                   </li>
                 </ol>
               </section>
-              <p class="station-lead">With Ariel</p>
             </div>
             <div class="station-panel" id="station-bluesky" role="tabpanel" aria-labelledby="tab-bluesky" hidden>
               <p class="station-detail">Build a custom feed or starter pack around your research community, with a live feed-building demo.</p>
@@ -401,9 +402,74 @@
               <p class="station-lead">With Ronen and Wes</p>
             </div>
             <div class="station-panel" id="station-matadisco" role="tabpanel" aria-labelledby="tab-matadisco" hidden>
-              <p class="station-detail">Set up a live stream of real data publishing as records anyone on the network can find.</p>
-              <p class="station-lead">With Robin</p>
-              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+              <section class="matadisco-preview" aria-labelledby="matadisco-title">
+                <div class="matadisco-heading">
+                  <h3 id="matadisco-title">Recent scenes</h3>
+                  <a href="https://vmx.github.io/matadisco-viewer/" target="_blank" rel="noopener noreferrer">Open live viewer ↗</a>
+                </div>
+                <div class="matadisco-scenes" aria-label="Recent Sentinel-2 L2A scenes">
+                  <a
+                    class="matadisco-scene"
+                    href="https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2B_6VXM_20261011_0_L2A"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/6/V/XM/2026/10/S2B_6VXM_20261011_0_L2A/preview.jpg"
+                      alt="Sentinel-2 preview for tile 6V XM"
+                      loading="lazy"
+                    />
+                    <span class="matadisco-scene-kind">Sentinel-2 L2A</span>
+                    <span class="matadisco-scene-tile">6V XM</span>
+                    <span class="matadisco-scene-meta"><time datetime="2026-10-11">11 Oct 2026</time><span>79% cloud</span></span>
+                  </a>
+                  <a
+                    class="matadisco-scene"
+                    href="https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2B_10UCU_20261011_0_L2A"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/10/U/CU/2026/10/S2B_10UCU_20261011_0_L2A/preview.jpg"
+                      alt="Sentinel-2 preview for tile 10U CU"
+                      loading="lazy"
+                    />
+                    <span class="matadisco-scene-kind">Sentinel-2 L2A</span>
+                    <span class="matadisco-scene-tile">10U CU</span>
+                    <span class="matadisco-scene-meta"><time datetime="2026-10-11">11 Oct 2026</time><span>0.001% cloud</span></span>
+                  </a>
+                  <a
+                    class="matadisco-scene"
+                    href="https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2C_14QRE_20261011_0_L2A"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/14/Q/RE/2026/10/S2C_14QRE_20261011_0_L2A/preview.jpg"
+                      alt="Sentinel-2 preview for tile 14Q RE"
+                      loading="lazy"
+                    />
+                    <span class="matadisco-scene-kind">Sentinel-2 L2A</span>
+                    <span class="matadisco-scene-tile">14Q RE</span>
+                    <span class="matadisco-scene-meta"><time datetime="2026-10-11">11 Oct 2026</time><span>100% cloud</span></span>
+                  </a>
+                  <a
+                    class="matadisco-scene"
+                    href="https://earth-search.aws.element84.com/v1/collections/sentinel-2-l2a/items/S2B_13SGU_20261011_0_L2A"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <img
+                      src="https://sentinel-cogs.s3.us-west-2.amazonaws.com/sentinel-s2-l2a-cogs/13/S/GU/2026/10/S2B_13SGU_20261011_0_L2A/preview.jpg"
+                      alt="Sentinel-2 preview for tile 13S GU"
+                      loading="lazy"
+                    />
+                    <span class="matadisco-scene-kind">Sentinel-2 L2A</span>
+                    <span class="matadisco-scene-tile">13S GU</span>
+                    <span class="matadisco-scene-meta"><time datetime="2026-10-11">11 Oct 2026</time><span>1.4% cloud</span></span>
+                  </a>
+                </div>
+              </section>
             </div>
             <div class="station-panel" id="station-sensors" role="tabpanel" aria-labelledby="tab-sensors" hidden>
               <p class="station-detail">Publish live sensor data as records, and wire events between accounts so readings show up elsewhere.</p>

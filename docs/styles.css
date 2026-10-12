@@ -203,6 +203,20 @@ h1:focus {
 .entry-actions > .eyebrow {
   margin-bottom: 8px;
 }
+[data-restoring] .screen {
+  visibility: hidden;
+}
+[data-restoring] #restoring-note {
+  visibility: visible;
+}
+#restoring-note:empty {
+  display: none;
+}
+.checking {
+  color: var(--muted);
+  font: var(--type-body);
+  margin: 0 0 8px;
+}
 .action-intro {
   max-width: 34ch;
   color: var(--muted);

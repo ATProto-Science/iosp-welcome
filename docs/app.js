@@ -15,7 +15,12 @@ let participantError = false;
 const participantPageSize = 9;
 const participantDids = new Set();
 
+function endRestore() {
+  document.querySelector(".page")?.removeAttribute("data-restoring");
+}
+
 function show(id) {
+  endRestore();
   for (const screen of document.querySelectorAll(".screen")) screen.hidden = screen.id !== id;
   $("sign-out").hidden = id !== "joined";
   $(id).querySelector("h1")?.focus();
@@ -731,3 +736,5 @@ try {
 } catch (error) {
   console.warn("Could not restore sign-in:", error);
 }
+$("restoring-note").textContent = "";
+endRestore();

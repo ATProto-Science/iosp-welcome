@@ -802,6 +802,66 @@ input::placeholder {
   font-size: 12px;
   line-height: 1;
 }
+.institution-briefing {
+  overflow: hidden;
+  margin-top: 4px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 16px;
+  background: #fff;
+}
+.institution-briefing-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--page);
+  color: var(--meta);
+  font: var(--type-metadata);
+}
+.institution-briefing-content {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+.institution-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 10px;
+  background: var(--page);
+}
+.institution-briefing-content h3 {
+  margin: 0;
+  font: 600 18px / 1.25 var(--font-sans);
+}
+.institution-briefing-content > p {
+  margin: 0;
+  color: var(--muted);
+  font: var(--type-body);
+}
+.institution-briefing-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 2px;
+}
+.institution-resource-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--rule-strong);
+  border-radius: 6px;
+  color: var(--muted);
+  font: var(--type-metadata);
+  text-decoration: none;
+}
+.institution-resource-link:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
 /* Show IOSP conference Semble collection */
 .collection-preview {
   --semble-font: "Hanken Grotesk", system-ui, sans-serif;

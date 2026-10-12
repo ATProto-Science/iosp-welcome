@@ -601,6 +601,10 @@ function selectStation(tab) {
     other.tabIndex = selected ? 0 : -1;
     $(other.getAttribute("aria-controls")).hidden = !selected;
   }
+  if (tab.getAttribute("aria-controls") === "station-institutions") {
+    const video = $("station-institutions").querySelector(".institution-video");
+    if (video && !video.hasAttribute("src")) video.src = video.dataset.src;
+  }
 }
 for (const tab of stationTabs) {
   tab.addEventListener("click", () => selectStation(tab));

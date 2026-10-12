@@ -594,6 +594,103 @@ async function loadCollectionPreview() {
 
 // One tab per station
 const stationTabs = [...document.querySelectorAll(".station-tab")];
+const sensorClientKey = "hvc_4f63d844f5a253fe658f1491160126dc";
+const sensorAppView = "https://happyview.werk.museum";
+let sensorRefreshTimer;
+
+async function fetchSensorRecords(nsid, limit = 50) {
+  const response = await fetch(`${sensorAppView}/xrpc/${nsid}?limit=${limit}`, {
+    headers: { "X-Client-Key": sensorClientKey },
+  });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return (await response.json()).records ?? [];
+}
+
+function sensorStatus(message) {
+  $("sensor-status").textContent = message;
+}
+
+async function loadSensorTab() {
+  const readingsNode = $("sensor-reading");
+  const readingDetail = $("sensor-reading-detail");
+  const noteNode = $("sensor-note");
+  const noteDetail = $("sensor-note-detail");
+  const readingsList = $("sensor-reading-list");
+
+  try {
+    const readings = await fetchSensorRecords("style.tilde.hacking.listSensorReadings");
+    readings.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (readings.length) {
+      const latest = readings[0];
+      readingsNode.textContent = `📡 🌡️ ${readings.length}`;
+      readingDetail.textContent = `${latest.sensorType}: ${(latest.value / latest.valueScale).toFixed(1)} ${latest.unit} · ${latest.deviceId ?? "sensor"}`;
+    } else {
+      readingsNode.textContent = "📡 🌡️ 0";
+      readingDetail.textContent = "No readings published yet";
+    }
+    readingsList.replaceChildren();
+    for (const reading of readings.slice(0, 3)) {
+      const row = document.createElement("li");
+      row.className = "sensor-reading-row";
+      const type = document.createElement("strong");
+      type.textContent = reading.sensorType;
+      const value = document.createElement("span");
+      value.textContent = `${(reading.value / reading.valueScale).toFixed(1)} ${reading.unit}`;
+      const device = document.createElement("span");
+      device.textContent = reading.deviceId ?? "sensor";
+      const time = document.createElement("time");
+      time.dateTime = reading.createdAt;
+      time.textContent = new Date(reading.createdAt).toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+      row.append(type, value, device, time);
+      readingsList.append(row);
+    }
+    if (!readings.length) {
+      const empty = document.createElement("li");
+      empty.className = "sensor-reading-empty";
+      empty.textContent = "No readings published yet";
+      readingsList.append(empty);
+    }
+  } catch (error) {
+    readingsNode.textContent = "📡 🌡️ unavailable";
+    readingDetail.textContent = `Live readings could not load (${error.message})`;
+    readingsList.replaceChildren();
+    const failed = document.createElement("li");
+    failed.className = "sensor-reading-empty";
+    failed.textContent = `Live readings could not load (${error.message})`;
+    readingsList.append(failed);
+  }
+
+  try {
+    const notes = await fetchSensorRecords("music.atproto.noizetoyz.synth.listNotes");
+    notes.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    if (notes.length) {
+      const latest = notes[0];
+      const noteNames = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+      noteNode.textContent = `🎹♫ ${notes.length} · ${noteNames[latest.note % 12]}${Math.floor(latest.note / 12) - 1}`;
+      noteDetail.textContent = `${latest.deviceId ?? "Mozzi synth"} · ${new Date(latest.createdAt).toLocaleTimeString()}`;
+    } else {
+      noteNode.textContent = "🎹♫ 0";
+      noteDetail.textContent = "No notes played yet";
+    }
+  } catch (error) {
+    noteNode.textContent = "🎹♫ unavailable";
+    noteDetail.textContent = `Live notes could not load (${error.message})`;
+  }
+
+  sensorStatus(`Live data · updated ${new Date().toLocaleTimeString()}`);
+}
+
+const sensorPanel = $("station-sensors");
+const institutionPanel = $("station-institutions");
+function matchSensorPanelHeight() {
+  const institutionMeasure = institutionPanel.cloneNode(true);
+  institutionMeasure.hidden = false;
+  institutionMeasure.style.cssText = "position:absolute;visibility:hidden;pointer-events:none;width:100%;";
+  institutionPanel.parentElement.append(institutionMeasure);
+  sensorPanel.style.maxHeight = `${institutionMeasure.getBoundingClientRect().height}px`;
+  institutionMeasure.remove();
+  sensorPanel.classList.add("sensor-panel-scroll");
+}
 function selectStation(tab) {
   for (const other of stationTabs) {
     const selected = other === tab;
@@ -601,11 +698,20 @@ function selectStation(tab) {
     other.tabIndex = selected ? 0 : -1;
     $(other.getAttribute("aria-controls")).hidden = !selected;
   }
+  if (tab.getAttribute("aria-controls") === "station-sensors") matchSensorPanelHeight();
   if (tab.getAttribute("aria-controls") === "station-institutions") {
     const video = $("station-institutions").querySelector(".institution-video");
     if (video && !video.hasAttribute("src")) video.src = video.dataset.src;
   }
+  clearInterval(sensorRefreshTimer);
+  if (tab.getAttribute("aria-controls") === "station-sensors") {
+    loadSensorTab();
+    sensorRefreshTimer = setInterval(loadSensorTab, 15000);
+  }
 }
+window.addEventListener("resize", () => {
+  if ($("tab-sensors").getAttribute("aria-selected") === "true") matchSensorPanelHeight();
+});
 for (const tab of stationTabs) {
   tab.addEventListener("click", () => selectStation(tab));
   tab.addEventListener("keydown", (event) => {

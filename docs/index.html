@@ -474,7 +474,33 @@
             <div class="station-panel" id="station-sensors" role="tabpanel" aria-labelledby="tab-sensors" hidden>
               <p class="station-detail">Publish live sensor data as records, and wire events between accounts so readings show up elsewhere.</p>
               <p class="station-lead">With Torsten</p>
-              <p class="station-notes redacted" aria-hidden="true">Station notes</p>
+              <section class="sensor-demo" aria-label="Live sensor stations">
+                <div class="sensor-demo-banner">
+                  <span class="live-dot" aria-hidden="true"></span>one substrate · two stations · no separate backends
+                </div>
+                <div class="sensor-demo-stations">
+                  <a class="sensor-demo-station" href="https://hacking.tilde.style/viewer.html#sensors" target="_blank" rel="noopener noreferrer">
+                    <span class="sensor-demo-label"><span class="live-dot" aria-hidden="true"></span>Live data streaming</span>
+                    <strong class="sensor-demo-title" id="sensor-reading">Loading readings…</strong>
+                    <span id="sensor-reading-detail">Latest published sensor records</span>
+                  </a>
+                  <a class="sensor-demo-station" href="https://hacking.tilde.style/viewer.html" target="_blank" rel="noopener noreferrer">
+                    <span class="sensor-demo-label"><span class="live-dot" aria-hidden="true"></span>Noizetoyz</span>
+                    <strong class="sensor-demo-title" id="sensor-note">Loading notes…</strong>
+                    <span id="sensor-note-detail">Latest note played over the network</span>
+                  </a>
+                </div>
+              </section>
+              <section class="sensor-readings" aria-labelledby="sensor-readings-title">
+                <div class="sensor-readings-heading">
+                  <h3 id="sensor-readings-title">Recent readings</h3>
+                  <a href="https://hacking.tilde.style/" target="_blank" rel="noopener noreferrer">Torsten’s hacking site ↗</a>
+                </div>
+                <ul class="sensor-reading-list" id="sensor-reading-list" aria-label="Latest live sensor readings">
+                  <li class="sensor-reading-empty">Loading live readings…</li>
+                </ul>
+              </section>
+              <p class="sensor-summary" id="sensor-status" role="status">Connecting to live station data…</p>
             </div>
             <div class="station-panel" id="station-institutions" role="tabpanel" aria-labelledby="tab-institutions" hidden>
               <section class="institution-briefing" aria-labelledby="institution-briefing-title">

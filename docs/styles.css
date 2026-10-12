@@ -732,6 +732,66 @@ input::placeholder {
   margin: 0;
   font: var(--type-body);
 }
+.start-actions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 8px;
+  margin: 4px 0;
+}
+.start-action {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 46px;
+  padding: 9px 12px;
+  border: 1px solid var(--rule-strong);
+  color: var(--ink);
+  font: var(--type-body-small);
+  font-weight: 600;
+  text-decoration: none;
+}
+.start-action:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.workshop-schedule {
+  margin-top: 8px;
+}
+.workshop-schedule h3 {
+  margin: 0 0 4px;
+  font: var(--type-heading-2);
+}
+.schedule-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.schedule-item {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) 42px;
+  align-items: baseline;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--rule);
+}
+.schedule-time,
+.schedule-end {
+  color: var(--meta);
+  font: var(--type-metadata);
+  font-variant-numeric: tabular-nums;
+}
+.schedule-end {
+  text-align: right;
+}
+.schedule-activity {
+  font: var(--type-body);
+  font-weight: 600;
+}
+.schedule-note {
+  color: var(--muted);
+  font-weight: 400;
+}
 .bluesky-cards {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));

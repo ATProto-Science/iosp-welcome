@@ -557,7 +557,9 @@ input::placeholder {
   font: var(--type-body-small);
   font-weight: 600;
   text-decoration: none;
-  transition: background 140ms ease, transform 140ms ease;
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
 }
 .account-action-link:hover {
   background: var(--accent-dark, #1b2b79);

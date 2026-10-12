@@ -185,13 +185,14 @@ async function showHost(endpoint, did, handle) {
   const onAster =
     (configuredAster && originOf(endpoint) === configuredAster) || Boolean(config.asterHandleSuffix && label.endsWith(config.asterHandleSuffix));
   const note = $("host-note");
-  const action = $("migration-link");
+  const migrationAction = $("migration-link");
+  const asterAction = $("aster-link");
   const base =
     "Your handle is what you sign in with, and you can change it any time. Your DID is permanent, so your account survives a new handle or new host.";
   note.textContent = base;
-  // An account already on Aster needs no explanation
   note.hidden = Boolean(onAster);
-  action.hidden = Boolean(onAster);
+  migrationAction.hidden = Boolean(onAster);
+  asterAction.hidden = !onAster;
 }
 
 async function welcome({ did, handle, getRecord, putRecord, deleteRecord, session }) {
@@ -206,7 +207,8 @@ async function welcome({ did, handle, getRecord, putRecord, deleteRecord, sessio
   $("rsvp-undo").disabled = false;
   setAttendingUi("ready");
   $("host-value").textContent = "…";
-  $("migration-link").hidden = false;
+  $("migration-link").hidden = true;
+  $("aster-link").hidden = true;
   show("joined");
   if (!$("conference-feed").src) loadFeed();
   if (!participantsLoaded) loadParticipants();

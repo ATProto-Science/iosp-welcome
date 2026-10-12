@@ -730,6 +730,65 @@ input::placeholder {
   margin: 0;
   font: var(--type-body);
 }
+.bluesky-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+  margin: 4px 0;
+}
+.bluesky-card {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-content: start;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+  min-height: 94px;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--ink);
+  text-decoration: none;
+}
+.bluesky-card-icon {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.bluesky-card-kind,
+.bluesky-card-title,
+.bluesky-card-byline {
+  grid-column: 2;
+  min-width: 0;
+}
+.bluesky-card:hover {
+  border-color: var(--rule-strong);
+}
+.bluesky-card:hover .bluesky-card-title {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.bluesky-card-kind {
+  color: var(--meta);
+  font: var(--type-label);
+  letter-spacing: var(--track-label);
+  text-transform: uppercase;
+}
+.bluesky-card-title {
+  font: var(--type-body);
+  font-weight: 600;
+}
+.bluesky-card-byline {
+  overflow: hidden;
+  color: var(--muted);
+  font: var(--type-body-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .station-lead {
   margin: 0;
   color: var(--meta);

@@ -752,9 +752,6 @@ input::placeholder {
   --semble-pill: #f1f3f5;
   display: grid;
   gap: 12px;
-  margin-top: 4px;
-  padding-top: 16px;
-  border-top: 1px solid var(--rule);
   font-family: var(--semble-font);
   color: var(--semble-ink);
 }
@@ -901,8 +898,17 @@ input::placeholder {
   border: 0;
   background: #fff;
 }
-.participants {
+.participants,
+.collection {
   padding: 30px;
+}
+.collection .section-heading {
+  margin: 0 0 8px;
+}
+.collection-subtitle {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font: var(--type-body-small);
 }
 .participants-heading {
   display: flex;
@@ -1217,7 +1223,8 @@ input:focus-visible {
   }
   .workshops,
   .feed-preview,
-  .participants {
+  .participants,
+  .collection {
     padding: 24px;
   }
   .feed-preview {

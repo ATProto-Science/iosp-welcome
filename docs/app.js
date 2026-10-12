@@ -210,6 +210,7 @@ async function welcome({ did, handle, getRecord, putRecord, deleteRecord, sessio
   show("joined");
   if (!$("conference-feed").src) loadFeed();
   if (!participantsLoaded) loadParticipants();
+  loadCollectionPreview();
   loadAccount(did, handle);
   if (!eventReady()) {
     $("rsvp-yes").hidden = true;
@@ -517,7 +518,7 @@ function renderCollectionPreview({ name, description, handle, cards }, uri) {
   open.href = collectionUrl(uri, handle);
   open.target = "_blank";
   open.rel = "noopener noreferrer";
-  open.textContent = "View the full collection ↗";
+  open.textContent = "View full collection on Semble ↗";
   head.append(title, open);
   preview.append(head);
 
@@ -534,7 +535,7 @@ function renderCollectionPreview({ name, description, handle, cards }, uri) {
   }
 }
 
-// Loaded when the Semble tab is opened, so the first paint stays free of network.
+// Loaded once the joined screen opens, so the first paint stays free of network.
 async function loadCollectionPreview() {
   const uri = config.sembleCollectionUri;
   if (!uri || collectionPreviewLoading || collectionPreviewLoaded || !$("collection-preview")) return;
@@ -584,7 +585,7 @@ async function loadCollectionPreview() {
     console.warn("Could not load the Semble collection:", error);
     const status = document.createElement("p");
     status.className = "collection-status";
-    status.textContent = "Couldn't load the reading list right now.";
+    status.textContent = "Couldn't load the shared link drop right now.";
     $("collection-preview").replaceChildren(status);
   } finally {
     collectionPreviewLoading = false;
@@ -600,7 +601,6 @@ function selectStation(tab) {
     other.tabIndex = selected ? 0 : -1;
     $(other.getAttribute("aria-controls")).hidden = !selected;
   }
-  if (tab?.id === "tab-semble") loadCollectionPreview();
 }
 for (const tab of stationTabs) {
   tab.addEventListener("click", () => selectStation(tab));
